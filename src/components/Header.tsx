@@ -1,4 +1,5 @@
-import { motion } from "motion/react";
+import { ChevronLeft, Info } from "lucide-react";
+import React from "react";
 
 interface HeaderProps {
   movieTitle: string;
@@ -6,21 +7,31 @@ interface HeaderProps {
   cinemaName: string;
 }
 
-export function Header({ movieTitle, showTime, cinemaName }: HeaderProps) {
+export const Header: React.FC<HeaderProps> = ({
+  movieTitle,
+  showTime,
+  cinemaName,
+}) => {
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className="w-full border-b border-gray-800 bg-[#1A1A1A]/80 backdrop-blur-sm sticky top-0 z-10"
-    >
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        <h1 className="text-lg font-bold text-white mb-1">{movieTitle}</h1>
-        <div className="flex items-center gap-3 text-xs text-gray-400">
-          <span>{showTime}</span>
-          <span>•</span>
-          <span>{cinemaName}</span>
+    <header className="p-4 flex items-center justify-between text-white border-b border-white/5">
+      <div className="flex items-center gap-4">
+        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+          <ChevronLeft size={24} />
+        </button>
+        <div>
+          <h1 className="text-lg font-bold leading-tight tracking-tight">
+            {movieTitle}
+          </h1>
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <span>{showTime}</span>
+            <span className="w-1 h-1 rounded-full bg-gray-600" />
+            <span>{cinemaName}</span>
+          </div>
         </div>
       </div>
-    </motion.header>
+      <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+        <Info size={20} className="text-gray-400" />
+      </button>
+    </header>
   );
-}
+};

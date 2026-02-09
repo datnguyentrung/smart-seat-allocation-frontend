@@ -194,7 +194,7 @@ export default function App() {
         </motion.div>
 
         <div className="mt-12 mb-8 text-center px-4">
-          <p className="text-gray-600 text-[10px] leading-relaxed max-w-xs mx-auto uppercase tracking-tighter opacity-50">
+          <p className="text-white-900 text-[10px] leading-relaxed max-w-xs mx-auto uppercase tracking-tighter opacity-50">
             Terms & Conditions apply. Seat reservation is valid for 10 minutes.
           </p>
         </div>

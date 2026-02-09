@@ -1,25 +1,24 @@
-export function Legend() {
-  return (
-    <div className="mt-8 flex flex-wrap justify-center gap-4 px-4">
-      <LegendItem
-        color="bg-gray-800 border border-gray-700"
-        label="Available"
-      />
-      <LegendItem
-        color="bg-purple-900/30 border border-purple-700/50"
-        label="VIP"
-      />
-      <LegendItem color="bg-[#E50914]" label="Selected" />
-      <LegendItem color="bg-gray-700" label="Booked" />
-    </div>
-  );
-}
+import React from "react";
 
-function LegendItem({ color, label }: { color: string; label: string }) {
+export const Legend: React.FC = () => {
+  const items = [
+    { label: "Available", color: "border border-white/30" },
+    { label: "Booked", color: "bg-gray-800" },
+    { label: "Selected", color: "bg-[#E50914]" },
+    { label: "VIP", color: "border-2 border-[#FFD700]" },
+    { label: "Couple", color: "border border-[#FF69B4]/40" },
+  ];
+
   return (
-    <div className="flex items-center gap-2">
-      <div className={`w-4 h-4 rounded-sm ${color}`} />
-      <span className="text-xs text-gray-400">{label}</span>
+    <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-8 px-4">
+      {items.map((item) => (
+        <div key={item.label} className="flex items-center gap-2">
+          <div className={`w-3 h-3 rounded-sm ${item.color}`} />
+          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+            {item.label}
+          </span>
+        </div>
+      ))}
     </div>
   );
-}
+};

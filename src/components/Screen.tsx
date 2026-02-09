@@ -1,11 +1,25 @@
-export function Screen() {
+import React from "react";
+
+export const Screen: React.FC = () => {
   return (
-    <div className="relative w-full max-w-md mx-auto mb-8 mt-6">
-      <div className="relative h-1 bg-linear-to-r from-transparent via-white/40 to-transparent rounded-full" />
-      <div className="absolute inset-0 blur-md bg-linear-to-r from-transparent via-white/20 to-transparent" />
-      <p className="text-center text-[10px] text-gray-600 mt-2 uppercase tracking-wider">
+    <div className="relative w-full flex flex-col items-center mt-4 mb-12">
+      <div
+        className="w-[80%] h-4 bg-gradient-to-b from-white/20 to-transparent"
+        style={{
+          clipPath: "polygon(10% 0, 90% 0, 100% 100%, 0 100%)",
+          boxShadow: "0 10px 30px rgba(255, 255, 255, 0.1)",
+        }}
+      />
+      <div className="mt-2 text-[10px] font-bold tracking-[0.4em] text-gray-500 uppercase">
         Screen
-      </p>
+      </div>
+      <div
+        className="absolute top-0 w-full h-24 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"
+        style={{
+          maskImage: "linear-gradient(to bottom, black, transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
+        }}
+      />
     </div>
   );
-}
+};

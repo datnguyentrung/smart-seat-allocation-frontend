@@ -1,4 +1,5 @@
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import React from "react";
 
 interface FooterProps {
   selectedSeats: string[];
@@ -6,43 +7,55 @@ interface FooterProps {
   onContinue: () => void;
 }
 
-export function Footer({ selectedSeats, totalPrice, onContinue }: FooterProps) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
+export const Footer: React.FC<FooterProps> = ({
+  selectedSeats,
+  totalPrice,
+  onContinue,
+}) => {
+  const isActive = selectedSeats.length > 0;
 
   return (
-    <motion.footer
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-[#0F0F0F] border-t border-gray-800 shadow-2xl"
-    >
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-xs text-gray-400 mb-1">Selected Seats</p>
-            <p className="text-sm font-semibold text-white">
-              {selectedSeats.length > 0 ? selectedSeats.join(", ") : "None"}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-400 mb-1">Total</p>
-            <p className="text-lg font-bold text-[#E50914]">
-              {formatPrice(totalPrice)}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={onContinue}
-          disabled={selectedSeats.length === 0}
-          className="w-full bg-[#E50914] hover:bg-[#E50914]/90 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all duration-200 text-sm"
+    <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A]/80 backdrop-blur-md border-t border-white/5 p-4 pb-8 flex items-center justify-between z-50">
+      <div className="flex flex-col">
+        <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold h-4">
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={selectedSeats.join(",")}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              {selectedSeats.length > 0
+                ? selectedSeats.join(", ")
+                : "No seats selected"}
+            </motion.span>
+          </AnimatePresence>
+        </span>
+        <motion.span
+          key={totalPrice}
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: 1 }}
+          className="text-xl font-bold text-white"
         >
-          Continue
-        </button>
+          {totalPrice.toLocaleString()}{" "}
+          <span className="text-xs font-normal text-gray-500">VND</span>
+        </motion.span>
       </div>
-    </motion.footer>
+
+      <motion.button
+        whileHover={{ scale: isActive ? 1.02 : 1 }}
+        whileTap={{ scale: isActive ? 0.98 : 1 }}
+        disabled={!isActive}
+        onClick={onContinue}
+        className={`px-8 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 ${
+          isActive
+            ? "bg-[#E50914] text-white shadow-[0_4px_20px_rgba(229,9,20,0.3)] opacity-100"
+            : "bg-gray-800 text-gray-500 opacity-50 cursor-not-allowed"
+        }`}
+      >
+        CONTINUE
+      </motion.button>
+    </div>
   );
-}
+};
