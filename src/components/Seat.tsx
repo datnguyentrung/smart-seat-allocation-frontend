@@ -3,49 +3,47 @@ import { X } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
 import { twMerge } from "tailwind-merge";
+import { type SeatState, type SeatType } from "../types/types";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type SeatType = "standard" | "vip" | "couple";
-export type SeatState = "available" | "booked" | "selected";
-
 interface SeatProps {
-  id: string;
+  id: number;
   type: SeatType;
-  state: SeatState;
-  onClick: (id: string) => void;
+  state: SeatState | undefined;
+  onClick: (id: number) => void;
   label?: string;
 }
 
 export const Seat: React.FC<SeatProps> = ({
   id,
   type,
-  state,
+  state = "AVAILABLE",
   onClick,
   label,
 }) => {
-  const isSelected = state === "selected";
-  const isBooked = state === "booked";
+  const isSelected = state === "SELECTED";
+  const isBooked = state === "BOOKED";
 
   const baseStyles =
     "relative flex items-center justify-center rounded-sm transition-all duration-200 cursor-pointer text-[10px] font-medium";
 
   const typeStyles = {
-    standard: "w-8 h-8",
-    vip: "w-8 h-8 border-2 border-[#FFD700]",
-    couple: "w-[72px] h-8 rounded-md",
+    STANDARD: "w-8 h-8",
+    VIP: "w-8 h-8 border-2 border-[#FFD700]",
+    COUPLE: "w-[72px] h-8 rounded-md",
   };
 
   const stateStyles = {
-    available: "border border-white/30 text-white/50 hover:border-white/60",
-    booked: "bg-gray-800 text-gray-600 cursor-not-allowed border-none",
-    selected:
+    AVAILABLE: "border border-white/30 text-white/50 hover:border-white/60",
+    BOOKED: "bg-gray-800 text-gray-600 cursor-not-allowed border-none",
+    SELECTED:
       "bg-[#E50914] text-white border-none shadow-[0_0_10px_rgba(229,9,20,0.4)]",
   };
 
-  if (type === "couple") {
+  if (type === "COUPLE") {
     return (
       <motion.button
         whileTap={{ scale: isBooked ? 1 : 0.95 }}
@@ -53,10 +51,10 @@ export const Seat: React.FC<SeatProps> = ({
         disabled={isBooked}
         className={cn(
           baseStyles,
-          typeStyles.couple,
+          typeStyles.COUPLE,
           stateStyles[state],
-          state === "available" && "border-[#FF69B4]/40 text-[#FF69B4]/60",
-          state === "selected" &&
+          state === "AVAILABLE" && "border-[#FF69B4]/40 text-[#FF69B4]/60",
+          state === "SELECTED" &&
             "bg-[#FF69B4] text-white shadow-[0_0_10px_rgba(255,105,180,0.4)]",
         )}
       >

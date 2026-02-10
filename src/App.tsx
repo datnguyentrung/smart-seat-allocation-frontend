@@ -6,18 +6,11 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { Screen } from "./components/Screen";
-import { Seat, type SeatState, type SeatType } from "./components/Seat";
-
-interface SeatData {
-  id: string;
-  row: string;
-  num: number;
-  type: SeatType;
-  state: SeatState;
-}
+import { Seat } from "./components/Seat";
+import { type SeatData, type SeatState, type SeatType } from "./types/types";
 
 const ROWS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-const COLS = 10;
+const COLS = 16;
 
 const INITIAL_BOOKED = [
   "A3",
@@ -37,26 +30,35 @@ const PRE_SELECTED = ["D4", "D6", "E4", "E5"];
 
 const generateSeats = (): SeatData[] => {
   const seats: SeatData[] = [];
+  let seatIdCounter = 1;
 
-  ROWS.forEach((row) => {
+  ROWS.forEach((row, rowIndex) => {
     const isCoupleRow = row === "J";
     const numCols = isCoupleRow ? 5 : COLS;
 
     for (let i = 1; i <= numCols; i++) {
-      const id = `${row}${i}`;
-      let type: SeatType = "standard";
+      const seatLabel = `${row}${i}`;
+      let type: SeatType = "STANDARD";
 
       if (row === "J") {
-        type = "couple";
+        type = "COUPLE";
       } else if (["E", "F", "G"].includes(row) && i >= 3 && i <= 8) {
-        type = "vip";
+        type = "VIP";
       }
 
-      let state: SeatState = "available";
-      if (INITIAL_BOOKED.includes(id)) state = "booked";
-      if (PRE_SELECTED.includes(id)) state = "selected";
+      let state: SeatState = "AVAILABLE";
+      if (INITIAL_BOOKED.includes(seatLabel)) state = "BOOKED";
+      if (PRE_SELECTED.includes(seatLabel)) state = "SELECTED";
 
-      seats.push({ id, row, num: i, type, state });
+      seats.push({
+        seatId: seatIdCounter++,
+        rowLabel: row,
+        seatNumber: i,
+        gridRow: rowIndex,
+        gridCol: i - 1,
+        seatType: type,
+        seatState: state,
+      });
     }
   });
 
@@ -64,22 +66,22 @@ const generateSeats = (): SeatData[] => {
 };
 
 const SEAT_PRICES: Record<SeatType, number> = {
-  standard: 80000,
-  vip: 120000,
-  couple: 200000,
+  STANDARD: 80000,
+  VIP: 120000,
+  COUPLE: 200000,
 };
 
 export default function App() {
   const [seats, setSeats] = useState<SeatData[]>(generateSeats());
   const [isErrorOpen, setIsErrorOpen] = useState(false);
 
-  const handleSeatClick = (id: string) => {
+  const handleSeatClick = (id: number) => {
     setSeats((prev) =>
       prev.map((seat) => {
-        if (seat.id === id && seat.state !== "booked") {
+        if (seat.seatId === id && seat.seatState !== "BOOKED") {
           return {
             ...seat,
-            state: seat.state === "selected" ? "available" : "selected",
+            seatState: seat.seatState === "SELECTED" ? "AVAILABLE" : "SELECTED",
           };
         }
         return seat;
@@ -92,14 +94,17 @@ export default function App() {
     let hasOrphan = false;
     ROWS.forEach((row) => {
       const rowSeats = seats
-        .filter((s) => s.row === row)
-        .sort((a, b) => a.num - b.num);
+        .filter((s) => s.rowLabel === row)
+        .sort((a, b) => a.seatNumber - b.seatNumber);
       for (let i = 0; i < rowSeats.length; i++) {
         const current = rowSeats[i];
-        if (current.state === "available") {
+        if (current.seatState === "AVAILABLE") {
           const left = rowSeats[i - 1];
           const right = rowSeats[i + 1];
-          if (left?.state === "selected" && right?.state === "selected") {
+          if (
+            left?.seatState === "SELECTED" &&
+            right?.seatState === "SELECTED"
+          ) {
             hasOrphan = true;
           }
         }
@@ -114,16 +119,16 @@ export default function App() {
   };
 
   const selectedSeats = useMemo(
-    () => seats.filter((s) => s.state === "selected"),
+    () => seats.filter((s) => s.seatState === "SELECTED"),
     [seats],
   );
 
   const totalPrice = useMemo(
-    () => selectedSeats.reduce((sum, s) => sum + SEAT_PRICES[s.type], 0),
+    () => selectedSeats.reduce((sum, s) => sum + SEAT_PRICES[s.seatType], 0),
     [selectedSeats],
   );
 
-  const selectedLabels = selectedSeats.map((s) => s.id);
+  const selectedLabels = selectedSeats.map((s) => s.rowLabel + s.seatNumber);
 
   return (
     <motion.div
@@ -164,14 +169,14 @@ export default function App() {
               {/* Seats Row */}
               <div className="flex flex-1 justify-center gap-1.5 sm:gap-2">
                 {seats
-                  .filter((s) => s.row === row)
+                  .filter((s) => s.rowLabel === row)
                   .map((seat) => (
                     <Seat
-                      key={seat.id}
-                      id={seat.id}
-                      type={seat.type}
-                      state={seat.state}
-                      label={seat.id}
+                      key={seat.seatId}
+                      id={seat.seatId}
+                      type={seat.seatType}
+                      state={seat.seatState}
+                      label={seat.rowLabel + seat.seatNumber}
                       onClick={handleSeatClick}
                     />
                   ))}

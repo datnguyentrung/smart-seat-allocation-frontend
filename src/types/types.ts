@@ -1,0 +1,14 @@
+export type SeatType = "STANDARD" | "VIP" | "COUPLE";
+export type SeatState = "AVAILABLE" | "BOOKED" | "SELECTED";
+
+export interface SeatData {
+  seatId: number;
+  rowLabel: string;
+  seatNumber: number;
+
+  gridRow: number;
+  gridCol: number;
+
+  seatType: SeatType;
+  seatState?: SeatState;
+}

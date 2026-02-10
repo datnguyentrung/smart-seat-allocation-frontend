@@ -4,7 +4,7 @@ export const Screen: React.FC = () => {
   return (
     <div className="relative w-full flex flex-col items-center mt-4 mb-12">
       <div
-        className="w-[80%] h-4 bg-gradient-to-b from-white/20 to-transparent"
+        className="w-[80%] h-4 bg-linear-to-b from-white/20 to-transparent"
         style={{
           clipPath: "polygon(10% 0, 90% 0, 100% 100%, 0 100%)",
           boxShadow: "0 10px 30px rgba(255, 255, 255, 0.1)",
@@ -14,7 +14,7 @@ export const Screen: React.FC = () => {
         Screen
       </div>
       <div
-        className="absolute top-0 w-full h-24 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"
+        className="absolute top-0 w-full h-24 bg-linear-to-b from-white/5 to-transparent pointer-events-none"
         style={{
           maskImage: "linear-gradient(to bottom, black, transparent)",
           WebkitMaskImage: "linear-gradient(to bottom, black, transparent)",
