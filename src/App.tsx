@@ -7,7 +7,11 @@ import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { Screen } from "./components/Screen";
 import { Seat } from "./components/Seat";
-import { type SeatData, type SeatState, type SeatType } from "./types/types";
+import {
+  type SeatResponse,
+  type SeatState,
+  type SeatType,
+} from "./types/types";
 
 const ROWS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 const COLS = 16;
@@ -28,8 +32,8 @@ const INITIAL_BOOKED = [
 ];
 const PRE_SELECTED = ["D4", "D6", "E4", "E5"];
 
-const generateSeats = (): SeatData[] => {
-  const seats: SeatData[] = [];
+const generateSeats = (): SeatResponse[] => {
+  const seats: SeatResponse[] = [];
   let seatIdCounter = 1;
 
   ROWS.forEach((row, rowIndex) => {
@@ -52,6 +56,7 @@ const generateSeats = (): SeatData[] => {
 
       seats.push({
         seatId: seatIdCounter++,
+        roomId: 1,
         rowLabel: row,
         seatNumber: i,
         gridRow: rowIndex,
@@ -72,7 +77,7 @@ const SEAT_PRICES: Record<SeatType, number> = {
 };
 
 export default function App() {
-  const [seats, setSeats] = useState<SeatData[]>(generateSeats());
+  const [seats, setSeats] = useState<SeatResponse[]>(generateSeats());
   const [isErrorOpen, setIsErrorOpen] = useState(false);
 
   const handleSeatClick = (id: number) => {
