@@ -7,11 +7,11 @@ import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { Screen } from "./components/Screen";
 import { Seat } from "./components/Seat";
-import {
-  type SeatResponse,
-  type SeatState,
-  type SeatType,
-} from "./types/types";
+import type { SeatResponse, SeatState, SeatType } from "./types/types";
+
+import {ShowtimeAPI} from "@/apis/ticketing/ShowtimeAPI";
+
+const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
 const ROWS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 const COLS = 16;
@@ -61,6 +61,7 @@ const generateSeats = (): SeatResponse[] => {
         seatNumber: i,
         gridRow: rowIndex,
         gridCol: i - 1,
+        isActive: true,
         seatType: type,
         seatState: state,
       });
