@@ -1,35 +1,32 @@
 import { Info, RotateCcw } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import styles from "./BookingControls.module.scss";
 
 interface BookingControlsProps {
   onReset?: () => void;
   onTicketCountChange?: (count: number) => void;
   onAdjacentSeatsChange?: (count: number) => void;
+  ticketCount?: number;
+  adjacentSeats?: number;
 }
 
 export const BookingControls: React.FC<BookingControlsProps> = ({
   onReset,
   onTicketCountChange,
   onAdjacentSeatsChange,
+  ticketCount = 0,
+  adjacentSeats = 1,
 }) => {
-  const [ticketCount, setTicketCount] = useState(0);
-  const [adjacentSeats, setAdjacentSeats] = useState(1);
-
   const handleTicketCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value);
-    setTicketCount(value);
     onTicketCountChange?.(value);
   };
 
   const handleAdjacentSeatsChange = (count: number) => {
-    setAdjacentSeats(count);
     onAdjacentSeatsChange?.(count);
   };
 
   const handleReset = () => {
-    setTicketCount(0);
-    setAdjacentSeats(1);
     onReset?.();
   };
 
@@ -86,6 +83,7 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
             <button
               key={count}
               onClick={() => handleAdjacentSeatsChange(count)}
+              disabled={ticketCount === 0}
               className={`${styles["adjacent-button"]} ${adjacentSeats === count ? styles.active : ""}`}
             >
               {count}

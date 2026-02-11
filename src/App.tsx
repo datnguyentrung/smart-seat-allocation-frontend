@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/preserve-manual-memoization */
 import { ShowtimeAPI } from "@/apis/ticketing/ShowtimeAPI";
+import type {
+  SeatResponse,
+  SeatState,
+  SeatType,
+  ShowTimeWithSeatsResponse,
+} from "@/types/types";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { SeatAPI } from "./apis/catalog/SeatAPI";
@@ -11,12 +17,6 @@ import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { Screen } from "./components/Screen";
 import { Seat } from "./components/Seat";
-import type {
-  SeatResponse,
-  SeatState,
-  SeatType,
-  ShowTimeWithSeatsResponse,
-} from "@/types/types";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
@@ -31,6 +31,12 @@ export default function App() {
   const [showtimeDetails, setShowtimeDetails] =
     useState<ShowTimeWithSeatsResponse>(null!);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
+
+  // TicketCount dùng để theo dõi số lượng vé được chọn
+  const [ticketCount, setTicketCount] = useState(0);
+
+  // AdjacentSeats dùng để theo dõi số lượng ghế liền nhau được chọn
+  const [adjacentSeats, setAdjacentSeats] = useState(0);
 
   const handleReset = () => {
     setSeats((prev) =>
@@ -95,6 +101,11 @@ export default function App() {
         return seat;
       }),
     );
+  };
+
+  const handleNotify = () => {
+    alert("Vui lòng chọn số ghế cần mua trước khi tiếp tục.");
+    return;
   };
 
   const validateOrphans = () => {
@@ -163,7 +174,13 @@ export default function App() {
         >
           {/* BookingControls - Left Side */}
           <div className={styles["controls-section"]}>
-            <BookingControls onReset={handleReset} />
+            <BookingControls
+              onReset={handleReset}
+              onTicketCountChange={setTicketCount}
+              onAdjacentSeatsChange={setAdjacentSeats}
+              ticketCount={ticketCount}
+              adjacentSeats={adjacentSeats}
+            />
           </div>
 
           {/* Screen and Seats - Right Side */}
@@ -203,7 +220,9 @@ export default function App() {
                         type={seat.seatType}
                         state={seat.seatState}
                         label={seat.rowLabel + seat.seatNumber}
-                        onClick={handleSeatClick}
+                        onClick={
+                          ticketCount < 1 ? handleNotify : handleSeatClick
+                        }
                       />
                     </div>
                   ))}
