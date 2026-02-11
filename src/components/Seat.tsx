@@ -63,6 +63,27 @@ export const Seat: React.FC<SeatProps> = ({
     );
   }
 
+  if (type === "VIP") {
+    return (
+      <motion.button
+        whileTap={{ scale: isBooked ? 1 : 0.9 }}
+        onClick={() => !isBooked && onClick(id)}
+        disabled={isBooked}
+        className={cn(
+          baseStyles,
+          typeStyles.VIP,
+          stateStyles[state],
+          state === "AVAILABLE" &&
+            "border-[#FFD700]/60 text-[#FFD700]/70 hover:border-[#FFD700]",
+          state === "SELECTED" &&
+            "bg-[#E50914] text-white border-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.4)]",
+        )}
+      >
+        {isBooked ? <X size={14} /> : label}
+      </motion.button>
+    );
+  }
+
   return (
     <motion.button
       whileTap={{ scale: isBooked ? 1 : 0.9 }}
@@ -70,7 +91,7 @@ export const Seat: React.FC<SeatProps> = ({
       disabled={isBooked}
       className={cn(baseStyles, typeStyles[type], stateStyles[state])}
     >
-      {isBooked ? <X size={14} /> : isSelected ? label : ""}
+      {isBooked ? <X size={14} /> : label}
     </motion.button>
   );
 };

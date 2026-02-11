@@ -1,75 +1,23 @@
 /* eslint-disable react-hooks/preserve-manual-memoization */
+import { ShowtimeAPI } from "@/apis/ticketing/ShowtimeAPI";
 import { motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { SeatAPI } from "./apis/catalog/SeatAPI";
+import { BookingControls } from "./components/BookingControls";
 import { ErrorModal } from "./components/ErrorModal";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { Screen } from "./components/Screen";
 import { Seat } from "./components/Seat";
-import type { SeatResponse, SeatState, SeatType } from "./types/types";
-
-import {ShowtimeAPI} from "@/apis/ticketing/ShowtimeAPI";
+import type {
+  SeatResponse,
+  SeatState,
+  SeatType,
+  ShowTimeWithSeatsResponse,
+} from "./types/types";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
-
-const ROWS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-const COLS = 16;
-
-const INITIAL_BOOKED = [
-  "A3",
-  "A4",
-  "B1",
-  "C8",
-  "D3",
-  "D7",
-  "F2",
-  "F3",
-  "G10",
-  "H4",
-  "I1",
-  "I2",
-];
-const PRE_SELECTED = ["D4", "D6", "E4", "E5"];
-
-const generateSeats = (): SeatResponse[] => {
-  const seats: SeatResponse[] = [];
-  let seatIdCounter = 1;
-
-  ROWS.forEach((row, rowIndex) => {
-    const isCoupleRow = row === "J";
-    const numCols = isCoupleRow ? 5 : COLS;
-
-    for (let i = 1; i <= numCols; i++) {
-      const seatLabel = `${row}${i}`;
-      let type: SeatType = "STANDARD";
-
-      if (row === "J") {
-        type = "COUPLE";
-      } else if (["E", "F", "G"].includes(row) && i >= 3 && i <= 8) {
-        type = "VIP";
-      }
-
-      let state: SeatState = "AVAILABLE";
-      if (INITIAL_BOOKED.includes(seatLabel)) state = "BOOKED";
-      if (PRE_SELECTED.includes(seatLabel)) state = "SELECTED";
-
-      seats.push({
-        seatId: seatIdCounter++,
-        roomId: 1,
-        rowLabel: row,
-        seatNumber: i,
-        gridRow: rowIndex,
-        gridCol: i - 1,
-        isActive: true,
-        seatType: type,
-        seatState: state,
-      });
-    }
-  });
-
-  return seats;
-};
 
 const SEAT_PRICES: Record<SeatType, number> = {
   STANDARD: 80000,
@@ -78,8 +26,65 @@ const SEAT_PRICES: Record<SeatType, number> = {
 };
 
 export default function App() {
-  const [seats, setSeats] = useState<SeatResponse[]>(generateSeats());
+  const [seats, setSeats] = useState<SeatResponse[]>([]);
+  const [showtimeDetails, setShowtimeDetails] =
+    useState<ShowTimeWithSeatsResponse>(null!);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
+  const [ticketCount, setTicketCount] = useState(0);
+  const [adjacentSeatsCount, setAdjacentSeatsCount] = useState(1);
+
+  const handleReset = () => {
+    setSeats((prev) =>
+      prev.map((seat) => ({
+        ...seat,
+        seatState: seat.seatState === "SELECTED" ? "AVAILABLE" : seat.seatState,
+      })),
+    );
+    setTicketCount(0);
+    setAdjacentSeatsCount(1);
+  };
+
+  useEffect(() => {
+    // Chỉ chạy khi showtimeId thay đổi
+    if (!showtimeId) return;
+
+    ShowtimeAPI.getShowtimeWithSeats(showtimeId)
+      .then((data: ShowTimeWithSeatsResponse) => {
+        if (data) {
+          setShowtimeDetails(data); // Cập nhật state (để render UI)
+
+          // Trả về cả seatPromise VÀ data hiện tại để dùng ở bước sau
+          return Promise.all([
+            SeatAPI.getSeatsByRoomId(data.roomResponse.roomId),
+            data, // Chuyền data xuống bước tiếp theo
+          ]);
+        }
+        return Promise.reject("No showtime data");
+      })
+      .then(([seatData, currentShowtimeData]) => {
+        // Nhận seatData và currentShowtimeData (chính là biến data ở trên)
+
+        if (seatData) {
+          seatData.forEach((seat) => {
+            // LƯU Ý: Dùng currentShowtimeData thay vì state showtimeDetails
+            const isBooked = currentShowtimeData.selectedSeats.some(
+              (s) => s.seatId === seat.seatId,
+            );
+            if (isBooked) {
+              seat.seatState = "BOOKED" as SeatState;
+            }
+          });
+
+          setSeats(seatData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, [showtimeId]); // ✅ QUAN TRỌNG: Chỉ phụ thuộc vào showtimeId
+
+  console.log("Rendered seats:", seats);
+  console.log("Showtime details:", showtimeDetails);
 
   const handleSeatClick = (id: number) => {
     setSeats((prev) =>
@@ -98,7 +103,10 @@ export default function App() {
   const validateOrphans = () => {
     // Check for orphan seats (gap of 1)
     let hasOrphan = false;
-    ROWS.forEach((row) => {
+    // Get unique row labels from seats data
+    const uniqueRows = [...new Set(seats.map((s) => s.rowLabel))];
+
+    uniqueRows.forEach((row) => {
       const rowSeats = seats
         .filter((s) => s.rowLabel === row)
         .sort((a, b) => a.seatNumber - b.seatNumber);
@@ -148,53 +156,67 @@ export default function App() {
         cinemaName="CGV Aeon Ha Dong - Room 01"
       />
 
-      <main className="flex-1 w-full max-w-2xl mx-auto px-2 sm:px-4 overflow-x-hidden">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 overflow-x-hidden">
+        {/* Flex Container for BookingControls and Screen+Seats */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-col lg:flex-row gap-6 items-start mb-8"
         >
-          <Screen />
-        </motion.div>
+          {/* BookingControls - Left Side */}
+          <div className="w-full lg:w-96 flex-shrink-0">
+            <BookingControls
+              onReset={handleReset}
+              onTicketCountChange={setTicketCount}
+              onAdjacentSeatsChange={setAdjacentSeatsCount}
+            />
+          </div>
 
-        {/* Seat Map Container */}
-        <div className="flex flex-col gap-2.5 items-center scale-[0.9] sm:scale-100 origin-top">
-          {ROWS.map((row, rowIndex) => (
-            <motion.div
-              key={row}
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 + rowIndex * 0.05 }}
-              className="flex items-center gap-3 sm:gap-4 w-full"
-            >
-              {/* Row Label Left */}
-              <span className="w-4 text-[10px] text-gray-700 font-bold">
-                {row}
-              </span>
+          {/* Screen and Seats - Right Side */}
+          <div className="w-full lg:flex-1 flex flex-col items-center">
+            <div className="w-full mb-6">
+              <Screen />
+            </div>
 
-              {/* Seats Row */}
-              <div className="flex flex-1 justify-center gap-1.5 sm:gap-2">
-                {seats
-                  .filter((s) => s.rowLabel === row)
-                  .map((seat) => (
-                    <Seat
+            {/* Seat Map Container */}
+            {showtimeDetails && (
+              <div className="w-full flex justify-center">
+                <div
+                  className="grid gap-1.5 sm:gap-2 justify-items-center items-center w-fit"
+                  style={{
+                    gridTemplateRows: `repeat(${showtimeDetails.roomResponse.totalRows}, minmax(0, 1fr))`,
+                    gridTemplateColumns: `repeat(${showtimeDetails.roomResponse.totalCols}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {seats.map((seat) => (
+                    <div
                       key={seat.seatId}
-                      id={seat.seatId}
-                      type={seat.seatType}
-                      state={seat.seatState}
-                      label={seat.rowLabel + seat.seatNumber}
-                      onClick={handleSeatClick}
-                    />
+                      className={
+                        seat.seatType === "COUPLE" ? "justify-self-start" : ""
+                      }
+                      style={{
+                        gridRow: seat.gridRow,
+                        gridColumn:
+                          seat.seatType === "COUPLE"
+                            ? `${seat.gridCol} / span 2`
+                            : seat.gridCol,
+                      }}
+                    >
+                      <Seat
+                        id={seat.seatId}
+                        type={seat.seatType}
+                        state={seat.seatState}
+                        label={seat.rowLabel + seat.seatNumber}
+                        onClick={handleSeatClick}
+                      />
+                    </div>
                   ))}
+                </div>
               </div>
-
-              {/* Row Label Right */}
-              <span className="w-4 text-[10px] text-gray-700 font-bold text-right">
-                {row}
-              </span>
-            </motion.div>
-          ))}
-        </div>
+            )}
+          </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
