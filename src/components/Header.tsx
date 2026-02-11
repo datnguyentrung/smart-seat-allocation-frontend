@@ -1,5 +1,6 @@
 import { ChevronLeft, Info } from "lucide-react";
 import React from "react";
+import styles from "./Header.module.scss";
 
 interface HeaderProps {
   movieTitle: string;
@@ -13,24 +14,22 @@ export const Header: React.FC<HeaderProps> = ({
   cinemaName,
 }) => {
   return (
-    <header className="p-4 flex items-center justify-between text-white border-b border-white/5">
-      <div className="flex items-center gap-4">
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+    <header className={styles.header}>
+      <div className={styles["left-section"]}>
+        <button className={styles["back-button"]}>
           <ChevronLeft size={24} />
         </button>
-        <div>
-          <h1 className="text-lg font-bold leading-tight tracking-tight">
-            {movieTitle}
-          </h1>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className={styles.info}>
+          <h1>{movieTitle}</h1>
+          <div className={styles.meta}>
             <span>{showTime}</span>
-            <span className="w-1 h-1 rounded-full bg-gray-600" />
+            <span className={styles.dot} />
             <span>{cinemaName}</span>
           </div>
         </div>
       </div>
-      <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-        <Info size={20} className="text-gray-400" />
+      <button className={styles["info-button"]}>
+        <Info size={20} />
       </button>
     </header>
   );

@@ -3,6 +3,7 @@ import { ShowtimeAPI } from "@/apis/ticketing/ShowtimeAPI";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { SeatAPI } from "./apis/catalog/SeatAPI";
+import styles from "./App.module.scss";
 import { BookingControls } from "./components/BookingControls";
 import { ErrorModal } from "./components/ErrorModal";
 import { Footer } from "./components/Footer";
@@ -15,7 +16,7 @@ import type {
   SeatState,
   SeatType,
   ShowTimeWithSeatsResponse,
-} from "./types/types";
+} from "@/types/types";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
@@ -30,8 +31,6 @@ export default function App() {
   const [showtimeDetails, setShowtimeDetails] =
     useState<ShowTimeWithSeatsResponse>(null!);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
-  const [ticketCount, setTicketCount] = useState(0);
-  const [adjacentSeatsCount, setAdjacentSeatsCount] = useState(1);
 
   const handleReset = () => {
     setSeats((prev) =>
@@ -40,8 +39,6 @@ export default function App() {
         seatState: seat.seatState === "SELECTED" ? "AVAILABLE" : seat.seatState,
       })),
     );
-    setTicketCount(0);
-    setAdjacentSeatsCount(1);
   };
 
   useEffect(() => {
@@ -81,7 +78,7 @@ export default function App() {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [showtimeId]); // ✅ QUAN TRỌNG: Chỉ phụ thuộc vào showtimeId
+  }, []);
 
   console.log("Rendered seats:", seats);
   console.log("Showtime details:", showtimeDetails);
@@ -148,7 +145,7 @@ export default function App() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-[#1A1A1A] font-sans text-white flex flex-col pb-32 selection:bg-[#E50914]/30"
+      className={styles.app}
     >
       <Header
         movieTitle="Avatars: The Way of Water"
@@ -156,34 +153,30 @@ export default function App() {
         cinemaName="CGV Aeon Ha Dong - Room 01"
       />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 overflow-x-hidden">
+      <main className={styles.main}>
         {/* Flex Container for BookingControls and Screen+Seats */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="flex flex-col lg:flex-row gap-6 items-start mb-8"
+          className={styles.container}
         >
           {/* BookingControls - Left Side */}
-          <div className="w-full lg:w-96 flex-shrink-0">
-            <BookingControls
-              onReset={handleReset}
-              onTicketCountChange={setTicketCount}
-              onAdjacentSeatsChange={setAdjacentSeatsCount}
-            />
+          <div className={styles["controls-section"]}>
+            <BookingControls onReset={handleReset} />
           </div>
 
           {/* Screen and Seats - Right Side */}
-          <div className="w-full lg:flex-1 flex flex-col items-center">
-            <div className="w-full mb-6">
+          <div className={styles["seats-section"]}>
+            <div className={styles["screen-wrapper"]}>
               <Screen />
             </div>
 
             {/* Seat Map Container */}
             {showtimeDetails && (
-              <div className="w-full flex justify-center">
+              <div className={styles["seat-map-container"]}>
                 <div
-                  className="grid gap-1.5 sm:gap-2 justify-items-center items-center w-fit"
+                  className={styles["seat-grid"]}
                   style={{
                     gridTemplateRows: `repeat(${showtimeDetails.roomResponse.totalRows}, minmax(0, 1fr))`,
                     gridTemplateColumns: `repeat(${showtimeDetails.roomResponse.totalCols}, minmax(0, 1fr))`,
@@ -193,7 +186,9 @@ export default function App() {
                     <div
                       key={seat.seatId}
                       className={
-                        seat.seatType === "COUPLE" ? "justify-self-start" : ""
+                        seat.seatType === "COUPLE"
+                          ? `${styles["seat-wrapper"]} ${styles.couple}`
+                          : styles["seat-wrapper"]
                       }
                       style={{
                         gridRow: seat.gridRow,
@@ -222,12 +217,13 @@ export default function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
+          className={styles["legend-wrapper"]}
         >
           <Legend />
         </motion.div>
 
-        <div className="mt-12 mb-8 text-center px-4">
-          <p className="text-white-900 text-[10px] leading-relaxed max-w-xs mx-auto uppercase tracking-tighter opacity-50">
+        <div className={styles.terms}>
+          <p>
             Terms & Conditions apply. Seat reservation is valid for 10 minutes.
           </p>
         </div>

@@ -1,0 +1,68 @@
+@use "../styles/_variables" as *;
+@use "../styles/_mixins" as *;
+
+.header {
+  padding: 1rem;
+  @include flex-between;
+  color: $color-text;
+  border-bottom: 1px solid $color-border;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  @include button-reset;
+  padding: 0.5rem;
+  border-radius: $radius-full;
+  @include hover-bg;
+  @include transition;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.info {
+  h1 {
+    font-size: $font-lg;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $font-sm;
+  color: $color-text-muted;
+  margin-top: 0.25rem;
+
+  .dot {
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: $radius-full;
+    background-color: $color-gray-700;
+  }
+}
+
+.info-button {
+  @include button-reset;
+  padding: 0.5rem;
+  border-radius: $radius-full;
+  @include hover-bg;
+  @include transition;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: $color-text-muted;
+  }
+}

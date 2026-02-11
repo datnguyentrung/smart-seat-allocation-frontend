@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";
+import styles from "./Footer.module.scss";
 
 interface FooterProps {
   selectedSeats: string[];
@@ -15,9 +16,9 @@ export const Footer: React.FC<FooterProps> = ({
   const isActive = selectedSeats.length > 0;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A]/80 backdrop-blur-md border-t border-white/5 p-4 pb-8 flex items-center justify-between z-50">
-      <div className="flex flex-col">
-        <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold h-4">
+    <div className={styles.footer}>
+      <div className={styles["info-section"]}>
+        <span className={styles.label}>
           <AnimatePresence mode="wait">
             <motion.span
               key={selectedSeats.join(",")}
@@ -36,10 +37,10 @@ export const Footer: React.FC<FooterProps> = ({
           key={totalPrice}
           initial={{ opacity: 0.8 }}
           animate={{ opacity: 1 }}
-          className="text-xl font-bold text-white"
+          className={styles.price}
         >
           {totalPrice.toLocaleString()}{" "}
-          <span className="text-xs font-normal text-gray-500">VND</span>
+          <span className={styles.currency}>VND</span>
         </motion.span>
       </div>
 
@@ -48,11 +49,7 @@ export const Footer: React.FC<FooterProps> = ({
         whileTap={{ scale: isActive ? 0.98 : 1 }}
         disabled={!isActive}
         onClick={onContinue}
-        className={`px-8 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 ${
-          isActive
-            ? "bg-[#E50914] text-white shadow-[0_4px_20px_rgba(229,9,20,0.3)] opacity-100"
-            : "bg-gray-800 text-gray-500 opacity-50 cursor-not-allowed"
-        }`}
+        className={styles["continue-button"]}
       >
         CONTINUE
       </motion.button>

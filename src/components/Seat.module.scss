@@ -1,0 +1,94 @@
+@use "../styles/_mixins" as *;
+@use "../styles/_variables" as *;
+
+.seat {
+  @include button-reset;
+  position: relative;
+  @include flex-center;
+  border-radius: $radius-md;
+  @include transition(all, $transition-fast);
+  font-size: $font-xs;
+  font-weight: 500;
+
+  &.standard {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  &.vip {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  &.couple {
+    width: 4.5rem;
+    height: 2rem;
+    border-radius: $radius-md;
+  }
+
+  // States for STANDARD and VIP
+  &.available {
+    border: 1px solid $color-border-strong;
+    color: rgba($color-text, 0.5);
+
+    &:hover {
+      border-color: rgba($color-text, 0.6);
+    }
+  }
+
+  // VIP available state - override default available style
+  &.vip.available {
+    background-color: $color-vip;
+    color: $color-background;
+    border: none;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  // VIP selected state
+  &.vip.selected {
+    background-color: $color-primary;
+    color: $color-text;
+    border: none;
+    box-shadow: 0 0 10px rgba($color-primary, 0.4);
+  }
+
+  &.booked {
+    background-color: $color-gray-800;
+    color: $color-gray-700;
+    cursor: not-allowed;
+    border: none;
+  }
+
+  &.selected {
+    background-color: $color-primary;
+    color: $color-text;
+    border: none;
+    box-shadow: 0 0 10px rgba($color-primary, 0.4);
+  }
+
+  // Couple specific states
+  &.couple.available {
+    border: 1px solid rgba($color-couple, 0.4);
+    color: rgba($color-couple, 0.6);
+  }
+
+  &.couple.selected {
+    background-color: $color-couple;
+    color: $color-text;
+    box-shadow: 0 0 10px rgba($color-couple, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+}
+
+.close-icon {
+  position: absolute;
+  width: 0.625rem;
+  height: 0.625rem;
+  color: rgba($color-text, 0.6);
+}

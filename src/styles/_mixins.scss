@@ -1,0 +1,79 @@
+@use "./_variables" as *;
+
+// Flexbox mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Responsive breakpoints
+@mixin sm {
+  @media (min-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media (min-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
+}
+
+// Button reset
+@mixin button-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+// Transition
+@mixin transition($property: all, $duration: $transition-base) {
+  transition: $property $duration ease-in-out;
+}
+
+// Hover effect
+@mixin hover-bg($color: rgba(255, 255, 255, 0.1)) {
+  transition: background-color $transition-base;
+
+  &:hover {
+    background-color: $color;
+  }
+}
+
+// Focus ring
+@mixin focus-ring($color: $color-primary) {
+  outline: none;
+
+  &:focus {
+    box-shadow: 0 0 0 2px $color;
+  }
+}
+
+// Text truncate
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

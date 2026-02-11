@@ -1,0 +1,52 @@
+@use "../styles/_variables" as *;
+@use "../styles/_mixins" as *;
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 1.5rem;
+  row-gap: 0.75rem;
+  margin-top: 2rem;
+  padding: 0 1rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.box {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: $radius-sm;
+
+  &.available {
+    border: 1px solid $color-border-strong;
+  }
+
+  &.booked {
+    background-color: $color-gray-800;
+  }
+
+  &.selected {
+    background-color: $color-primary;
+  }
+
+  &.vip {
+    border: 2px solid $color-vip;
+  }
+
+  &.couple {
+    border: 1px solid rgba($color-couple, 0.4);
+  }
+}
+
+.label {
+  font-size: $font-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $color-text-muted;
+  font-weight: 600;
+}

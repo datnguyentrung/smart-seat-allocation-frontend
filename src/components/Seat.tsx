@@ -1,13 +1,8 @@
-import { clsx, type ClassValue } from "clsx";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
-import { twMerge } from "tailwind-merge";
 import { type SeatState, type SeatType } from "../types/types";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import styles from "./Seat.module.scss";
 
 interface SeatProps {
   id: number;
@@ -27,20 +22,20 @@ export const Seat: React.FC<SeatProps> = ({
   const isSelected = state === "SELECTED";
   const isBooked = state === "BOOKED";
 
-  const baseStyles =
-    "relative flex items-center justify-center rounded-sm transition-all duration-200 cursor-pointer text-[10px] font-medium";
+  const getSeatClasses = () => {
+    const classes = [styles.seat];
 
-  const typeStyles = {
-    STANDARD: "w-8 h-8",
-    VIP: "w-8 h-8 border-2 border-[#FFD700]",
-    COUPLE: "w-[72px] h-8 rounded-md",
-  };
+    // Type classes
+    if (type === "STANDARD") classes.push(styles.standard);
+    if (type === "VIP") classes.push(styles.vip);
+    if (type === "COUPLE") classes.push(styles.couple);
 
-  const stateStyles = {
-    AVAILABLE: "border border-white/30 text-white/50 hover:border-white/60",
-    BOOKED: "bg-gray-800 text-gray-600 cursor-not-allowed border-none",
-    SELECTED:
-      "bg-[#E50914] text-white border-none shadow-[0_0_10px_rgba(229,9,20,0.4)]",
+    // State classes
+    if (state === "AVAILABLE") classes.push(styles.available);
+    if (state === "BOOKED") classes.push(styles.booked);
+    if (state === "SELECTED") classes.push(styles.selected);
+
+    return classes.join(" ");
   };
 
   if (type === "COUPLE") {
@@ -49,16 +44,15 @@ export const Seat: React.FC<SeatProps> = ({
         whileTap={{ scale: isBooked ? 1 : 0.95 }}
         onClick={() => !isBooked && onClick(id)}
         disabled={isBooked}
-        className={cn(
-          baseStyles,
-          typeStyles.COUPLE,
-          stateStyles[state],
-          state === "AVAILABLE" && "border-[#FF69B4]/40 text-[#FF69B4]/60",
-          state === "SELECTED" &&
-            "bg-[#FF69B4] text-white shadow-[0_0_10px_rgba(255,105,180,0.4)]",
-        )}
+        className={getSeatClasses()}
       >
-        {isBooked ? <X size={14} /> : isSelected ? label : "Couple"}
+        {isBooked ? (
+          <X size={14} className={styles["close-icon"]} />
+        ) : isSelected ? (
+          label
+        ) : (
+          "Couple"
+        )}
       </motion.button>
     );
   }
@@ -69,17 +63,9 @@ export const Seat: React.FC<SeatProps> = ({
         whileTap={{ scale: isBooked ? 1 : 0.9 }}
         onClick={() => !isBooked && onClick(id)}
         disabled={isBooked}
-        className={cn(
-          baseStyles,
-          typeStyles.VIP,
-          stateStyles[state],
-          state === "AVAILABLE" &&
-            "border-[#FFD700]/60 text-[#FFD700]/70 hover:border-[#FFD700]",
-          state === "SELECTED" &&
-            "bg-[#E50914] text-white border-[#FFD700] shadow-[0_0_10px_rgba(255,215,0,0.4)]",
-        )}
+        className={getSeatClasses()}
       >
-        {isBooked ? <X size={14} /> : label}
+        {isBooked ? <X size={14} className={styles["close-icon"]} /> : label}
       </motion.button>
     );
   }
@@ -89,9 +75,9 @@ export const Seat: React.FC<SeatProps> = ({
       whileTap={{ scale: isBooked ? 1 : 0.9 }}
       onClick={() => !isBooked && onClick(id)}
       disabled={isBooked}
-      className={cn(baseStyles, typeStyles[type], stateStyles[state])}
+      className={getSeatClasses()}
     >
-      {isBooked ? <X size={14} /> : label}
+      {isBooked ? <X size={14} className={styles["close-icon"]} /> : label}
     </motion.button>
   );
 };
