@@ -1,6 +1,26 @@
+import { findAndFlattenSuperSets } from "@/utils/findAndFlattenSuperSets";
 import { Info, RotateCcw } from "lucide-react";
 import React from "react";
 import styles from "./BookingControls.module.scss";
+
+const bookinkTicketOptions: Record<number, number[][]> = {
+  0: [],
+  1: [[1]],
+  2: [[2]],
+  3: [[3]],
+  4: [[4], [2, 2]],
+  5: [[2, 3]],
+  6: [
+    [2, 4],
+    [3, 3],
+  ],
+  7: [[3, 4]],
+  8: [
+    [4, 4],
+    [2, 2, 4],
+    [2, 3, 3],
+  ],
+};
 
 interface BookingControlsProps {
   onReset?: () => void;
@@ -14,9 +34,32 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
   onReset,
   onTicketCountChange,
   onAdjacentSeatsChange,
-  ticketCount = 0,
-  adjacentSeats = 1,
+  ticketCount,
+  adjacentSeats,
 }) => {
+  const [listAdjacentOptions, setListAdjacentOptions] = React.useState<
+    number[]
+  >([]);
+  const [selectedAdjacentOption, setSelectedAdjacentOption] = React.useState<
+    number[]
+  >([]);
+
+  React.useEffect(() => {
+    // Lấy các options dựa trên số lượng vé đã chọn
+    const options: number[][] = bookinkTicketOptions[ticketCount || 0] || [];
+
+    // Tìm và làm phẳng các superset thỏa mãn selectedAdjacentOption
+    const optionAble = findAndFlattenSuperSets(
+      options,
+      selectedAdjacentOption,
+    ).sort((a, b) => a - b);
+
+    onAdjacentSeatsChange?.(optionAble[0]); // Cập nhật adjacentSeats dựa trên optionAble đầu tiên (nếu có)
+    setListAdjacentOptions(optionAble);
+  }, [ticketCount, selectedAdjacentOption, onAdjacentSeatsChange]);
+
+  console.log("listAdjacentOptions", listAdjacentOptions);
+
   const handleTicketCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value);
     onTicketCountChange?.(value);
@@ -84,7 +127,14 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
               key={count}
               onClick={() => handleAdjacentSeatsChange(count)}
               disabled={ticketCount === 0}
-              className={`${styles["adjacent-button"]} ${adjacentSeats === count ? styles.active : ""}`}
+              className={`${styles["adjacent-button"]}
+              ${
+                count === adjacentSeats
+                  ? styles.active
+                  : listAdjacentOptions.includes(count)
+                    ? styles.available
+                    : styles.disabled
+              }`}
             >
               {count}
             </button>

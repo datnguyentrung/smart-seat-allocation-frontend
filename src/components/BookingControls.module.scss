@@ -159,7 +159,7 @@
   font-weight: 500;
   @include transition;
 
-  &:hover:not(:disabled) {
+  &.available:not(:disabled) {
     background-color: rgba($color-primary, 0.1);
     border-color: $color-primary;
   }
@@ -170,6 +170,7 @@
     color: $color-text;
   }
 
+  &.disabled,
   &:disabled {
     background-color: #4b5563;
     border-color: #6b7280;

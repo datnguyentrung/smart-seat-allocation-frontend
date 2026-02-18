@@ -86,8 +86,8 @@ export default function App() {
       });
   }, []);
 
-  console.log("Rendered seats:", seats);
-  console.log("Showtime details:", showtimeDetails);
+  // console.log("Rendered seats:", seats);
+  // console.log("Showtime details:", showtimeDetails);
 
   const handleSeatClick = (id: number) => {
     setSeats((prev) =>
