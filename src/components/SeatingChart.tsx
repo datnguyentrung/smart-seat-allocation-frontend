@@ -13,6 +13,7 @@ interface SeatingChartProps {
   handleNotify: () => void;
   handleSeatClick: (id: number[]) => void;
   adjacentSeats: number;
+  listAdjacentOptions: number[];
 }
 
 export function SeatingChart({
@@ -20,9 +21,10 @@ export function SeatingChart({
   seats,
   seatMatrix,
   ticketCount,
+  adjacentSeats,
   handleNotify,
   handleSeatClick,
-  adjacentSeats,
+  listAdjacentOptions,
 }: SeatingChartProps) {
   const [suggestedSeats, setSuggestedSeats] = React.useState<
     { x: number; y: number }[]
@@ -36,13 +38,17 @@ export function SeatingChart({
       hoveredSeatX, // Vị trí cột của ghế đang hover
       hoveredSeatY, // Vị trí hàng của ghế đang hover
     );
-    console.log("Suggested seats based on hover:", seatSuggestions);
+    // console.log("Suggested seats based on hover:", seatSuggestions);
     setSuggestedSeats(seatSuggestions);
   };
 
-  console.log("Hovered seat suggestions:", suggestedSeats);
+  // console.log("Hovered seat suggestions:", suggestedSeats);
 
   const handChooseSeatSuggested = () => {
+    console.log(
+      "Handling seat selection based on suggestions:",
+      suggestedSeats,
+    );
     if (suggestedSeats.length > 0) {
       // Chuyển đổi suggestedSeats (x, y) thành seatId để gọi handleSeatClick
       const seatIdsToSelect = suggestedSeats
@@ -90,9 +96,11 @@ export function SeatingChart({
                       ? `${seat.gridCol} / span 2`
                       : seat.gridCol,
                 }}
-                onMouseEnter={() =>
-                  handleMouseEnter(seat.gridCol - 1, seat.gridRow - 1)
-                }
+                onMouseEnter={() => {
+                  if (listAdjacentOptions.length > 0) {
+                    handleMouseEnter(seat.gridCol - 1, seat.gridRow - 1);
+                  }
+                }}
               >
                 <Seat
                   id={seat.seatId}
@@ -100,7 +108,11 @@ export function SeatingChart({
                   state={seat.seatState}
                   label={seat.rowLabel + seat.seatNumber}
                   onClick={
-                    ticketCount < 1 ? handleNotify : handChooseSeatSuggested
+                    ticketCount < 1
+                      ? handleNotify
+                      : listAdjacentOptions.length > 0
+                        ? handChooseSeatSuggested
+                        : undefined
                   }
                   suggested={suggestedSeats.some(
                     (s) => s.x === seat.gridCol - 1 && s.y === seat.gridRow - 1,

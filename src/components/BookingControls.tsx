@@ -26,22 +26,24 @@ interface BookingControlsProps {
   onReset?: () => void;
   onTicketCountChange?: (count: number) => void;
   onAdjacentSeatsChange?: (count: number) => void;
+  onSelectedAdjacentOption: (option: number[]) => void;
   ticketCount?: number;
   adjacentSeats?: number;
   selectedAdjacentOption: number[];
+  listAdjacentOptions: number[];
 }
 
 export const BookingControls: React.FC<BookingControlsProps> = ({
   onReset,
   onTicketCountChange,
   onAdjacentSeatsChange,
+  onSelectedAdjacentOption,
   ticketCount,
   adjacentSeats,
   selectedAdjacentOption,
+  listAdjacentOptions,
 }) => {
-  const [listAdjacentOptions, setListAdjacentOptions] = React.useState<
-    number[]
-  >([]);
+
 
   React.useEffect(() => {
     // Lấy các options dựa trên số lượng vé đã chọn
@@ -54,8 +56,8 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
     ).sort((a, b) => a - b);
 
     onAdjacentSeatsChange?.(optionAble[0]); // Cập nhật adjacentSeats dựa trên optionAble đầu tiên (nếu có)
-    setListAdjacentOptions(optionAble);
-  }, [ticketCount, selectedAdjacentOption, onAdjacentSeatsChange]);
+    onSelectedAdjacentOption(optionAble);
+  }, [ticketCount, selectedAdjacentOption, onAdjacentSeatsChange, onSelectedAdjacentOption]);
 
   console.log("listAdjacentOptions", listAdjacentOptions);
 

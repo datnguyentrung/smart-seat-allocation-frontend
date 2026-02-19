@@ -8,7 +8,7 @@ interface SeatProps {
   id: number;
   type: SeatType;
   state: SeatState | undefined;
-  onClick: (id: number) => void;
+  onClick?: (id: number) => void;
   label?: string;
   suggested: boolean;
 }
@@ -49,7 +49,7 @@ export const Seat: React.FC<SeatProps> = ({
     return (
       <motion.button
         whileTap={{ scale: isBooked ? 1 : 0.95 }}
-        onClick={() => !isBooked && onClick(id)}
+        onClick={() => !isBooked && onClick && onClick(id)}
         disabled={isBooked}
         className={getSeatClasses()}
       >
@@ -68,7 +68,7 @@ export const Seat: React.FC<SeatProps> = ({
     return (
       <motion.button
         whileTap={{ scale: isBooked ? 1 : 0.9 }}
-        onClick={() => !isBooked && onClick(id)}
+        onClick={() => !isBooked && onClick && onClick(id)}
         disabled={isBooked}
         className={getSeatClasses()}
       >
@@ -80,7 +80,7 @@ export const Seat: React.FC<SeatProps> = ({
   return (
     <motion.button
       whileTap={{ scale: isBooked ? 1 : 0.9 }}
-      onClick={() => !isBooked && onClick(id)}
+      onClick={() => !isBooked && onClick && onClick(id)}
       disabled={isBooked}
       className={getSeatClasses()}
     >

@@ -32,8 +32,11 @@ export default function App() {
   const [seatMatrix, setSeatMatrix] = useState<number[][]>([]);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
   const [selectedAdjacentOption, setSelectedAdjacentOption] = useState<
-      number[]
-    >([]);
+    number[]
+  >([]);
+  const [listAdjacentOptions, setListAdjacentOptions] = useState<
+    number[]
+  >([]);
 
   // TicketCount dùng để theo dõi số lượng vé được chọn
   const [ticketCount, setTicketCount] = useState(0);
@@ -109,7 +112,7 @@ export default function App() {
 
   // console.log("Rendered seats:", seats);
   // console.log("Showtime details:", showtimeDetails);
-  console.log("Seat matrix:", seatMatrix);
+  // console.log("Seat matrix:", seatMatrix);
 
   const handleSeatClick = (id: number[]) => {
     setSeats((prev) =>
@@ -123,6 +126,10 @@ export default function App() {
         return seat;
       }),
     );
+    setSelectedAdjacentOption([
+      ...selectedAdjacentOption,
+      ...(id.length > 0 ? [id.length] : []),
+    ]); // Cập nhật selectedAdjacentOption dựa trên số lượng ghế được chọn
   };
 
   const handleNotify = () => {
@@ -200,9 +207,11 @@ export default function App() {
               onReset={handleReset}
               onTicketCountChange={setTicketCount}
               onAdjacentSeatsChange={setAdjacentSeats}
+              onSelectedAdjacentOption={setListAdjacentOptions}
               ticketCount={ticketCount}
               adjacentSeats={adjacentSeats}
               selectedAdjacentOption={selectedAdjacentOption}
+              listAdjacentOptions={listAdjacentOptions}
             />
           </div>
 
@@ -215,6 +224,7 @@ export default function App() {
             handleNotify={handleNotify}
             handleSeatClick={handleSeatClick}
             adjacentSeats={adjacentSeats}
+            listAdjacentOptions={listAdjacentOptions}
           />
         </motion.div>
 

@@ -2,11 +2,10 @@ export function findAndFlattenSuperSets(
   sourceArrays: number[][],
   queryArray: number[],
 ): number[] {
-  // 1. Tạo Set để chứa kết quả cuối cùng (tự động loại bỏ trùng lặp)
+  // 1. Tạo Set để chứa kết quả cuối cùng
   const resultSet = new Set<number>();
 
-  // 2. Tạo Map đếm số lượng cho query (Chỉ làm 1 lần)
-  // Ví dụ query [2, 2] -> Map { 2 => 2 }
+  // 2. Tạo Map đếm số lượng cho query
   const queryCounts = new Map<number, number>();
   for (const num of queryArray) {
     queryCounts.set(num, (queryCounts.get(num) || 0) + 1);
@@ -17,28 +16,35 @@ export function findAndFlattenSuperSets(
     // Optimization 1: Bỏ qua ngay nếu độ dài không đủ
     if (source.length < queryArray.length) continue;
 
-    // Kiểm tra xem source có thỏa mãn query không
     let isValid = true;
     for (const [qNum, qRequired] of queryCounts) {
-      // Đếm số lần xuất hiện của qNum trong source
-      // (Dùng vòng lặp for-of nhanh hơn filter/reduce)
       let foundCount = 0;
       for (const sNum of source) {
         if (sNum === qNum) foundCount++;
-        // Optimization 2: Nếu đã tìm đủ số lượng cần thiết thì dừng đếm số đó
         if (foundCount >= qRequired) break;
       }
 
       if (foundCount < qRequired) {
         isValid = false;
-        break; // Optimization 3: Sai 1 số là dừng kiểm tra source này ngay
+        break;
       }
     }
 
-    // 4. Nếu thỏa mãn -> Thêm từng phần tử vào Set kết quả
+    // 4. NẾU THỎA MÃN -> XỬ LÝ TRỪ MẢNG RỒI MỚI THÊM VÀO SET
     if (isValid) {
+      // BƯỚC MỚI: Tạo một bản sao của Map để đếm ngược số lượng cần "trừ" đi
+      const skipCounts = new Map(queryCounts);
+
       for (const num of source) {
-        resultSet.add(num);
+        const needToSkip = skipCounts.get(num) || 0;
+
+        if (needToSkip > 0) {
+          // Bỏ qua phần tử này (vì nó thuộc query) và giảm biến đếm
+          skipCounts.set(num, needToSkip - 1);
+        } else {
+          // Nếu không thuộc query (hoặc đã trừ đủ số lượng), thì đưa vào Set
+          resultSet.add(num);
+        }
       }
     }
   }
@@ -46,3 +52,14 @@ export function findAndFlattenSuperSets(
   // 5. Chuyển Set về Array
   return [...resultSet];
 }
+
+// --- TEST CASE ---
+const dataInput = [
+  [4, 4],
+  [2, 2, 4],
+  [2, 3, 3],
+];
+
+console.log(findAndFlattenSuperSets(dataInput, [2]));
+// Output sẽ là: [2, 4, 3]
+// (Tức là [2, 4] từ mảng 1 và [3, 3] từ mảng 2 -> Gộp lại lấy unique)
