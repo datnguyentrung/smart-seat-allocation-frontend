@@ -15,10 +15,7 @@ import { ErrorModal } from "./components/ErrorModal";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
-import { Screen } from "./components/Screen";
-import { Seat } from "./components/Seat";
-
-import { findOptimalSeats } from "@/utils/findOptimalSeats";
+import { SeatingChart } from "./components/SeatingChart";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
@@ -34,6 +31,9 @@ export default function App() {
     useState<ShowTimeWithSeatsResponse>(null!);
   const [seatMatrix, setSeatMatrix] = useState<number[][]>([]);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
+  const [selectedAdjacentOption, setSelectedAdjacentOption] = useState<
+      number[]
+    >([]);
 
   // TicketCount dùng để theo dõi số lượng vé được chọn
   const [ticketCount, setTicketCount] = useState(0);
@@ -111,10 +111,10 @@ export default function App() {
   // console.log("Showtime details:", showtimeDetails);
   console.log("Seat matrix:", seatMatrix);
 
-  const handleSeatClick = (id: number) => {
+  const handleSeatClick = (id: number[]) => {
     setSeats((prev) =>
       prev.map((seat) => {
-        if (seat.seatId === id && seat.seatState !== "BOOKED") {
+        if (id.includes(seat.seatId) && seat.seatState !== "BOOKED") {
           return {
             ...seat,
             seatState: seat.seatState === "SELECTED" ? "AVAILABLE" : "SELECTED",
@@ -202,62 +202,20 @@ export default function App() {
               onAdjacentSeatsChange={setAdjacentSeats}
               ticketCount={ticketCount}
               adjacentSeats={adjacentSeats}
+              selectedAdjacentOption={selectedAdjacentOption}
             />
           </div>
 
           {/* Screen and Seats - Right Side */}
-          <div className={styles["seats-section"]}>
-            <div className={styles["screen-wrapper"]}>
-              <Screen />
-            </div>
-
-            {/* Seat Map Container */}
-            {showtimeDetails && (
-              <div className={styles["seat-map-container"]}>
-                <div
-                  className={styles["seat-grid"]}
-                  style={{
-                    gridTemplateRows: `repeat(${showtimeDetails.roomResponse.totalRows}, minmax(0, 1fr))`,
-                    gridTemplateColumns: `repeat(${showtimeDetails.roomResponse.totalCols}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {seats.map((seat) => (
-                    <div
-                      key={seat.seatId}
-                      className={
-                        seat.seatType === "COUPLE"
-                          ? `${styles["seat-wrapper"]} ${styles.couple}`
-                          : styles["seat-wrapper"]
-                      }
-                      style={{
-                        gridRow: seat.gridRow,
-                        gridColumn:
-                          seat.seatType === "COUPLE"
-                            ? `${seat.gridCol} / span 2`
-                            : seat.gridCol,
-                      }}
-                      onMouseEnter={() =>
-                        console.log(
-                          "Hovering over:",
-                          seat.rowLabel + seat.seatNumber,
-                        )
-                      }
-                    >
-                      <Seat
-                        id={seat.seatId}
-                        type={seat.seatType}
-                        state={seat.seatState}
-                        label={seat.rowLabel + seat.seatNumber}
-                        onClick={
-                          ticketCount < 1 ? handleNotify : handleSeatClick
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <SeatingChart
+            showtimeDetails={showtimeDetails}
+            seats={seats}
+            seatMatrix={seatMatrix}
+            ticketCount={ticketCount}
+            handleNotify={handleNotify}
+            handleSeatClick={handleSeatClick}
+            adjacentSeats={adjacentSeats}
+          />
         </motion.div>
 
         <motion.div

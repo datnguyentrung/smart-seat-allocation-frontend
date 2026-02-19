@@ -10,6 +10,7 @@ interface SeatProps {
   state: SeatState | undefined;
   onClick: (id: number) => void;
   label?: string;
+  suggested: boolean;
 }
 
 export const Seat: React.FC<SeatProps> = ({
@@ -18,6 +19,7 @@ export const Seat: React.FC<SeatProps> = ({
   state = "AVAILABLE",
   onClick,
   label,
+  suggested,
 }) => {
   const isSelected = state === "SELECTED";
   const isBooked = state === "BOOKED";
@@ -25,10 +27,15 @@ export const Seat: React.FC<SeatProps> = ({
   const getSeatClasses = () => {
     const classes = [styles.seat];
 
+    // Nếu không phải ghế được gợi ý, áp dụng các lớp khác như bình thường
+
     // Type classes
     if (type === "STANDARD") classes.push(styles.standard);
     if (type === "VIP") classes.push(styles.vip);
     if (type === "COUPLE") classes.push(styles.couple);
+
+    // Suggested class (nếu có)
+    if (suggested) return [...classes, styles.suggested].join(" ");
 
     // State classes
     if (state === "AVAILABLE") classes.push(styles.available);

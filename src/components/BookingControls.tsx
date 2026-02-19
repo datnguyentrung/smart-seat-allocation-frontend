@@ -28,6 +28,7 @@ interface BookingControlsProps {
   onAdjacentSeatsChange?: (count: number) => void;
   ticketCount?: number;
   adjacentSeats?: number;
+  selectedAdjacentOption: number[];
 }
 
 export const BookingControls: React.FC<BookingControlsProps> = ({
@@ -36,11 +37,9 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
   onAdjacentSeatsChange,
   ticketCount,
   adjacentSeats,
+  selectedAdjacentOption,
 }) => {
   const [listAdjacentOptions, setListAdjacentOptions] = React.useState<
-    number[]
-  >([]);
-  const [selectedAdjacentOption, setSelectedAdjacentOption] = React.useState<
     number[]
   >([]);
 

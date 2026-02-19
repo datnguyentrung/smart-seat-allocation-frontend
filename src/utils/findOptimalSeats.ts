@@ -7,7 +7,7 @@ type SeatPosition = { x: number; y: number };
  * @param targetX Vị trí cột người dùng chọn
  * @param targetY Vị trí hàng người dùng chọn
  */
-function findOptimalSeats(
+export function findOptimalSeats(
   matrix: number[][],
   n: number,
   targetX: number,

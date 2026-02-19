@@ -63,7 +63,8 @@
   }
 
   &.selected,
-  &:hover:not(.booked):not(.selected) {
+  &:hover:not(.booked):not(.selected),
+  &.suggested {
     background-color: $color-primary;
     color: $color-text;
     border: none;
