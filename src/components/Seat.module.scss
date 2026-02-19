@@ -62,7 +62,8 @@
     border: none;
   }
 
-  &.selected {
+  &.selected,
+  &:hover:not(.booked):not(.selected) {
     background-color: $color-primary;
     color: $color-text;
     border: none;

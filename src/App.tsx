@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/preserve-manual-memoization */
+import { SeatAPI } from "@/apis/catalog/SeatAPI";
 import { ShowtimeAPI } from "@/apis/ticketing/ShowtimeAPI";
 import type {
   SeatResponse,
@@ -8,7 +9,6 @@ import type {
 } from "@/types/types";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
-import { SeatAPI } from "./apis/catalog/SeatAPI";
 import styles from "./App.module.scss";
 import { BookingControls } from "./components/BookingControls";
 import { ErrorModal } from "./components/ErrorModal";
@@ -17,6 +17,8 @@ import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { Screen } from "./components/Screen";
 import { Seat } from "./components/Seat";
+
+import { findOptimalSeats } from "@/utils/findOptimalSeats";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
@@ -30,6 +32,7 @@ export default function App() {
   const [seats, setSeats] = useState<SeatResponse[]>([]);
   const [showtimeDetails, setShowtimeDetails] =
     useState<ShowTimeWithSeatsResponse>(null!);
+  const [seatMatrix, setSeatMatrix] = useState<number[][]>([]);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
 
   // TicketCount dùng để theo dõi số lượng vé được chọn
@@ -67,6 +70,13 @@ export default function App() {
       .then(([seatData, currentShowtimeData]) => {
         // Nhận seatData và currentShowtimeData (chính là biến data ở trên)
 
+        const matrix: number[][] = [];
+        for (let i = 0; i < currentShowtimeData.roomResponse.totalRows; i++) {
+          matrix[i] = new Array(
+            currentShowtimeData.roomResponse.totalCols,
+          ).fill(0); // Mặc định tất cả ghế đều trống (1)
+        }
+
         if (seatData) {
           seatData.forEach((seat) => {
             // LƯU Ý: Dùng currentShowtimeData thay vì state showtimeDetails
@@ -76,9 +86,20 @@ export default function App() {
             if (isBooked) {
               seat.seatState = "BOOKED" as SeatState;
             }
+
+            // Xác định vị trí trong ma trận dựa trên gridRow và gridCol
+            const rowIndex = seat.gridRow - 1; // Giả sử gridRow bắt đầu từ 1
+            const colIndex = seat.gridCol - 1; // Giả sử gridCol bắt đầu từ 1
+
+            // Khởi tạo hàng nếu chưa tồn tại
+            if (!matrix[rowIndex]) {
+              matrix[rowIndex] = [];
+            }
+            matrix[rowIndex][colIndex] = seat.seatState === "BOOKED" ? 0 : 1;
           });
 
-          setSeats(seatData);
+          setSeatMatrix(matrix); // Cập nhật ma trận vào state
+          setSeats(seatData); // Cập nhật danh sách ghế vào state để render UI
         }
       })
       .catch((error) => {
@@ -88,6 +109,7 @@ export default function App() {
 
   // console.log("Rendered seats:", seats);
   // console.log("Showtime details:", showtimeDetails);
+  console.log("Seat matrix:", seatMatrix);
 
   const handleSeatClick = (id: number) => {
     setSeats((prev) =>
@@ -214,6 +236,12 @@ export default function App() {
                             ? `${seat.gridCol} / span 2`
                             : seat.gridCol,
                       }}
+                      onMouseEnter={() =>
+                        console.log(
+                          "Hovering over:",
+                          seat.rowLabel + seat.seatNumber,
+                        )
+                      }
                     >
                       <Seat
                         id={seat.seatId}
