@@ -19,7 +19,7 @@ export function findOptimalSeats(
 ): SeatPosition[] {
   const row = matrix[targetY];
   if (!row) return [];
-  
+
   const maxCol = row.length;
 
   // Helper: Tính số vé từ một vị trí
@@ -30,7 +30,8 @@ export function findOptimalSeats(
   };
 
   // Helper: Kiểm tra có phải ghế available không
-  const isAvailable = (val: number): boolean => val === 1 || val === 2 || val === -1;
+  const isAvailable = (val: number): boolean =>
+    val === 1 || val === 2 || val === -1;
 
   // 1. Xác định "Cụm ghế liên tiếp" (Block) mà người dùng đang chọn
   let blockStart = targetX;
@@ -61,11 +62,11 @@ export function findOptimalSeats(
   for (let start = blockStart; start <= blockEnd; start++) {
     // Skip vị trí -1 khi làm điểm bắt đầu
     if (row[start] === -1) continue;
-    
+
     let capacity = 0;
     for (let end = start; end <= blockEnd; end++) {
       capacity += getCapacity(row[end]);
-      
+
       // Nếu capacity >= n, đây là một candidate hợp lệ
       if (capacity >= n) {
         candidates.push({ start, end, capacity });
@@ -126,7 +127,8 @@ export function findOptimalSeats(
   // 7. Format kết quả trả về (chỉ lấy vị trí ghế thật, bỏ qua -1)
   const result: SeatPosition[] = [];
   for (let i = bestOption.start; i <= bestOption.end; i++) {
-    if (row[i] !== -1) { // Bỏ qua phần thứ 2 của COUPLE
+    if (row[i] !== -1) {
+      // Bỏ qua phần thứ 2 của COUPLE
       result.push({ x: i, y: targetY });
     }
   }

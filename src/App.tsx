@@ -193,7 +193,7 @@ export default function App() {
         let totalCapacity = 0;
         optimalSeats.forEach((pos) => {
           const targetSeat = seats.find(
-            (s) => s.gridCol - 1 === pos.x && s.gridRow - 1 === pos.y
+            (s) => s.gridCol - 1 === pos.x && s.gridRow - 1 === pos.y,
           );
           if (targetSeat) {
             totalCapacity += targetSeat.seatType === "COUPLE" ? 2 : 1;
