@@ -76,6 +76,11 @@ export function findOptimalSeats(
   // 5. Chọn phương án tốt nhất (đầu mảng sau khi sort)
   const bestOption = candidates[0];
 
+  // Kiểm tra nếu không có phương án nào (candidates rỗng)
+  if (!bestOption) {
+    return [];
+  }
+
   // 6. Format kết quả trả về
   const result: SeatPosition[] = [];
   for (let i = bestOption.start; i <= bestOption.end; i++) {

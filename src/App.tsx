@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/preserve-manual-memoization */
 import { SeatAPI } from "@/apis/catalog/SeatAPI";
 import { ShowtimeAPI } from "@/apis/ticketing/ShowtimeAPI";
 import type {
@@ -7,6 +6,7 @@ import type {
   SeatType,
   ShowTimeWithSeatsResponse,
 } from "@/types/types";
+import { findOptimalSeats } from "@/utils/findOptimalSeats";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./App.module.scss";
@@ -29,12 +29,12 @@ export default function App() {
   const [seats, setSeats] = useState<SeatResponse[]>([]);
   const [showtimeDetails, setShowtimeDetails] =
     useState<ShowTimeWithSeatsResponse>(null!);
-  const [seatMatrix, setSeatMatrix] = useState<number[][]>([]);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
   const [selectedAdjacentOption, setSelectedAdjacentOption] = useState<
     number[]
   >([]);
   const [listAdjacentOptions, setListAdjacentOptions] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // TicketCount dùng để theo dõi số lượng vé được chọn
   const [ticketCount, setTicketCount] = useState(0);
@@ -61,8 +61,11 @@ export default function App() {
     // Chỉ chạy khi showtimeId thay đổi
     if (!showtimeId) return;
 
+    console.log("Fetching showtime data for ID:", showtimeId);
+
     ShowtimeAPI.getShowtimeWithSeats(showtimeId)
       .then((data: ShowTimeWithSeatsResponse) => {
+        console.log("Showtime data received:", data);
         if (data) {
           setShowtimeDetails(data); // Cập nhật state (để render UI)
 
@@ -76,13 +79,7 @@ export default function App() {
       })
       .then(([seatData, currentShowtimeData]) => {
         // Nhận seatData và currentShowtimeData (chính là biến data ở trên)
-
-        const matrix: number[][] = [];
-        for (let i = 0; i < currentShowtimeData.roomResponse.totalRows; i++) {
-          matrix[i] = new Array(
-            currentShowtimeData.roomResponse.totalCols,
-          ).fill(0); // Mặc định tất cả ghế đều trống (1)
-        }
+        console.log("Seat data received:", seatData);
 
         if (seatData) {
           seatData.forEach((seat) => {
@@ -93,26 +90,102 @@ export default function App() {
             if (isBooked) {
               seat.seatState = "BOOKED" as SeatState;
             }
-
-            // Xác định vị trí trong ma trận dựa trên gridRow và gridCol
-            const rowIndex = seat.gridRow - 1; // Giả sử gridRow bắt đầu từ 1
-            const colIndex = seat.gridCol - 1; // Giả sử gridCol bắt đầu từ 1
-
-            // Khởi tạo hàng nếu chưa tồn tại
-            if (!matrix[rowIndex]) {
-              matrix[rowIndex] = [];
-            }
-            matrix[rowIndex][colIndex] = seat.seatState === "BOOKED" ? 0 : 1;
           });
 
-          setSeatMatrix(matrix); // Cập nhật ma trận vào state
           setSeats(seatData); // Cập nhật danh sách ghế vào state để render UI
+          setIsLoading(false); // Data đã load xong
+          console.log("Data loaded successfully!");
         }
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
+        setIsLoading(false);
       });
   }, []);
+
+  // Tính toán seatMatrix từ seats state (useMemo)
+  // CHÚ Ý: Matrix này dùng cho thuật toán findOptimalSeats, chỉ quan tâm BOOKED
+  // UNAVAILABLE là UI state tạm thời, không ảnh hưởng đến logic tìm ghế
+  const seatMatrix = useMemo(() => {
+    if (!showtimeDetails || seats.length === 0) return [];
+
+    const matrix: number[][] = [];
+    for (let i = 0; i < showtimeDetails.roomResponse.totalRows; i++) {
+      matrix[i] = new Array(showtimeDetails.roomResponse.totalCols).fill(0);
+    }
+
+    seats.forEach((seat) => {
+      const rowIndex = seat.gridRow - 1;
+      const colIndex = seat.gridCol - 1;
+
+      // 0 = ghế đã đặt hoặc không tồn tại (BOOKED)
+      // 1 = ghế có thể đặt (AVAILABLE, SELECTED, hoặc chưa có state)
+      // KHÔNG tính UNAVAILABLE vào đây vì nó chỉ là UI state
+      if (!matrix[rowIndex]) {
+        matrix[rowIndex] = [];
+      }
+      matrix[rowIndex][colIndex] = seat.seatState === "BOOKED" ? 0 : 1;
+    });
+
+    return matrix;
+  }, [seats, showtimeDetails]);
+
+  // Tính toán enhancedSeats với UNAVAILABLE state (useMemo)
+  const enhancedSeats = useMemo(() => {
+    if (!showtimeDetails || seatMatrix.length === 0 || seats.length === 0) {
+      return seats;
+    }
+
+    // Nếu adjacentSeats = 0, trả về seats gốc (không cần tính UNAVAILABLE)
+    if (adjacentSeats === 0) {
+      return seats;
+    }
+
+    return seats.map((seat) => {
+      // Không thay đổi ghế đã BOOKED hoặc SELECTED
+      if (seat.seatState === "BOOKED" || seat.seatState === "SELECTED") {
+        return seat;
+      }
+
+      try {
+        // Kiểm tra xem ghế này có thể tạo ra suggestedSeats hợp lệ không
+        const seatX = seat.gridCol - 1;
+        const seatY = seat.gridRow - 1;
+
+        const optimalSeats = findOptimalSeats(
+          seatMatrix,
+          adjacentSeats,
+          seatX,
+          seatY,
+        );
+
+        // Nếu không tìm được dãy ghế hợp lệ hoặc dãy ghế tìm được không đủ số lượng
+        // thì mark ghế này là UNAVAILABLE
+        if (
+          ticketCount !== 0 &&
+          (optimalSeats.length === 0 || optimalSeats.length < adjacentSeats)
+        ) {
+          return {
+            ...seat,
+            seatState: "UNAVAILABLE" as SeatState,
+          };
+        }
+
+        // Nếu có thể tạo suggestedSeats, giữ là AVAILABLE
+        return {
+          ...seat,
+          seatState: "AVAILABLE" as SeatState,
+        };
+      } catch (error) {
+        console.error("Error processing seat:", seat, error);
+        // Nếu có lỗi, giữ seat ở trạng thái AVAILABLE
+        return {
+          ...seat,
+          seatState: "AVAILABLE" as SeatState,
+        };
+      }
+    });
+  }, [seats, adjacentSeats, showtimeDetails, seatMatrix, ticketCount]);
 
   // console.log("Rendered seats:", seats);
   // console.log("Showtime details:", showtimeDetails);
@@ -126,7 +199,11 @@ export default function App() {
 
     setSeats((prev) =>
       prev.map((seat) => {
-        if (id.includes(seat.seatId) && seat.seatState !== "BOOKED") {
+        if (
+          id.includes(seat.seatId) &&
+          seat.seatState !== "BOOKED" &&
+          seat.seatState !== "UNAVAILABLE"
+        ) {
           return {
             ...seat,
             seatState: seat.seatState === "SELECTED" ? "AVAILABLE" : "SELECTED",
@@ -193,8 +270,8 @@ export default function App() {
   };
 
   const selectedSeats = useMemo(
-    () => seats.filter((s) => s.seatState === "SELECTED"),
-    [seats],
+    () => enhancedSeats.filter((s) => s.seatState === "SELECTED"),
+    [enhancedSeats],
   );
 
   const totalPrice = useMemo(
@@ -203,6 +280,25 @@ export default function App() {
   );
 
   const selectedLabels = selectedSeats.map((s) => s.rowLabel + s.seatNumber);
+
+  // Hiển thị loading khi dữ liệu chưa sẵn sàng
+  if (isLoading || !showtimeDetails || seats.length === 0) {
+    return (
+      <div
+        className={styles.app}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <div style={{ textAlign: "center", color: "white" }}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -241,7 +337,7 @@ export default function App() {
           {/* Screen and Seats - Right Side */}
           <SeatingChart
             showtimeDetails={showtimeDetails}
-            seats={seats}
+            seats={enhancedSeats}
             seatMatrix={seatMatrix}
             ticketCount={ticketCount}
             handleNotify={handleNotify}

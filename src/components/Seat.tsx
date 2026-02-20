@@ -23,6 +23,7 @@ export const Seat: React.FC<SeatProps> = ({
 }) => {
   const isSelected = state === "SELECTED";
   const isBooked = state === "BOOKED";
+  const isUnavailable = state === "UNAVAILABLE";
 
   const getSeatClasses = () => {
     const classes = [styles.seat];
@@ -41,6 +42,7 @@ export const Seat: React.FC<SeatProps> = ({
     if (state === "AVAILABLE") classes.push(styles.available);
     if (state === "BOOKED") classes.push(styles.booked);
     if (state === "SELECTED") classes.push(styles.selected);
+    if (state === "UNAVAILABLE") classes.push(styles.unavailable);
 
     return classes.join(" ");
   };
@@ -48,9 +50,9 @@ export const Seat: React.FC<SeatProps> = ({
   if (type === "COUPLE") {
     return (
       <motion.button
-        whileTap={{ scale: isBooked ? 1 : 0.95 }}
-        onClick={() => !isBooked && onClick && onClick(id)}
-        disabled={isBooked}
+        whileTap={{ scale: isBooked || isUnavailable ? 1 : 0.95 }}
+        onClick={() => !isBooked && !isUnavailable && onClick && onClick(id)}
+        disabled={isBooked || isUnavailable}
         className={getSeatClasses()}
       >
         {isBooked ? (
@@ -67,9 +69,9 @@ export const Seat: React.FC<SeatProps> = ({
   if (type === "VIP") {
     return (
       <motion.button
-        whileTap={{ scale: isBooked ? 1 : 0.9 }}
-        onClick={() => !isBooked && onClick && onClick(id)}
-        disabled={isBooked}
+        whileTap={{ scale: isBooked || isUnavailable ? 1 : 0.9 }}
+        onClick={() => !isBooked && !isUnavailable && onClick && onClick(id)}
+        disabled={isBooked || isUnavailable}
         className={getSeatClasses()}
       >
         {isBooked ? <X size={14} className={styles["close-icon"]} /> : label}
@@ -79,9 +81,9 @@ export const Seat: React.FC<SeatProps> = ({
 
   return (
     <motion.button
-      whileTap={{ scale: isBooked ? 1 : 0.9 }}
-      onClick={() => !isBooked && onClick && onClick(id)}
-      disabled={isBooked}
+      whileTap={{ scale: isBooked || isUnavailable ? 1 : 0.9 }}
+      onClick={() => !isBooked && !isUnavailable && onClick && onClick(id)}
+      disabled={isBooked || isUnavailable}
       className={getSeatClasses()}
     >
       {isBooked ? <X size={14} className={styles["close-icon"]} /> : label}

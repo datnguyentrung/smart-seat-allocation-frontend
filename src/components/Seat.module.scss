@@ -28,8 +28,9 @@
 
   // States for STANDARD and VIP
   &.available {
+    background-color: $color-text;
     border: 1px solid $color-border-strong;
-    color: rgba($color-text, 0.5);
+    color: rgba($color-background, 0.8);
 
     &:hover {
       border-color: rgba($color-text, 0.6);
@@ -62,6 +63,14 @@
     border: none;
   }
 
+  &.unavailable {
+    background-color: transparent;
+    border: 1px solid rgba($color-border-strong, 0.3);
+    color: rgba($color-text, 0.2);
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
   &.selected,
   &.suggested {
     background-color: $color-primary;
@@ -74,6 +83,8 @@
   &.couple.available {
     border: 1px solid rgba($color-couple, 0.4);
     color: rgba($color-couple, 0.6);
+    font-weight: 600;
+    font-size: $font-sm;
   }
 
   &.couple.selected {

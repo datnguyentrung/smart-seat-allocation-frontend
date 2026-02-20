@@ -6,6 +6,7 @@ export const Legend: React.FC = () => {
     { label: "Available", style: "available" },
     { label: "Booked", style: "booked" },
     { label: "Selected", style: "selected" },
+    { label: "Unavailable", style: "unavailable" },
     { label: "VIP", style: "vip" },
     { label: "Couple", style: "couple" },
   ];

@@ -24,10 +24,16 @@
 
   &.available {
     border: 1px solid $color-border-strong;
+    background-color: $color-text;
   }
 
   &.booked {
     background-color: $color-gray-800;
+  }
+
+  &.unavailable {
+    border: 1px solid rgba($color-border-strong, 0.3);
+    opacity: 0.4;
   }
 
   &.selected {

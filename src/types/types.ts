@@ -1,5 +1,5 @@
 export type SeatType = "STANDARD" | "VIP" | "COUPLE";
-export type SeatState = "AVAILABLE" | "BOOKED" | "SELECTED";
+export type SeatState = "AVAILABLE" | "BOOKED" | "SELECTED" | "UNAVAILABLE";
 export type AgeRating = "P" | "C13" | "C16" | "C18";
 export type RoomType = "2D" | "3D" | "IMAX";
 export type ShowtimeStatus = "OPENING" | "SOLD_OUT" | "CANCELLED";
