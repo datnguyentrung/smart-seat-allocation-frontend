@@ -43,12 +43,18 @@ export default function App() {
   const [adjacentSeats, setAdjacentSeats] = useState(0);
 
   const handleReset = () => {
+    // Reset trạng thái ghế
     setSeats((prev) =>
       prev.map((seat) => ({
         ...seat,
         seatState: seat.seatState === "SELECTED" ? "AVAILABLE" : seat.seatState,
       })),
     );
+
+    // Reset tất cả các state liên quan
+    setSelectedAdjacentOption([]);
+    setListAdjacentOptions([]);
+    setAdjacentSeats(0);
   };
 
   useEffect(() => {

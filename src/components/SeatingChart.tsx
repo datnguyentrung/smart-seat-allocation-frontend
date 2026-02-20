@@ -49,6 +49,10 @@ export function SeatingChart({
     setSuggestedSeats(seatSuggestions);
   };
 
+  const handleMouseOut = () => {
+    setSuggestedSeats([]); // Xóa gợi ý khi không còn hover
+  };
+
   // console.log("Hovered seat suggestions:", suggestedSeats);
 
   const handChooseSeatSuggested = () => {
@@ -145,6 +149,7 @@ export function SeatingChart({
                     handleMouseEnter(seat.gridCol - 1, seat.gridRow - 1);
                   }
                 }}
+                onMouseLeave={handleMouseOut}
               >
                 <Seat
                   id={seat.seatId}

@@ -14,7 +14,10 @@ const bookinkTicketOptions: Record<number, number[][]> = {
     [2, 4],
     [3, 3],
   ],
-  7: [[3, 4]],
+  7: [
+    [2, 2, 3],
+    [3, 4],
+  ],
   8: [
     [4, 4],
     [2, 2, 4],
@@ -43,8 +46,6 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
   selectedAdjacentOption,
   listAdjacentOptions,
 }) => {
-
-
   React.useEffect(() => {
     // Lấy các options dựa trên số lượng vé đã chọn
     const options: number[][] = bookinkTicketOptions[ticketCount || 0] || [];
@@ -57,13 +58,19 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
 
     onAdjacentSeatsChange?.(optionAble[0]); // Cập nhật adjacentSeats dựa trên optionAble đầu tiên (nếu có)
     onSelectedAdjacentOption(optionAble);
-  }, [ticketCount, selectedAdjacentOption, onAdjacentSeatsChange, onSelectedAdjacentOption]);
+  }, [
+    ticketCount,
+    selectedAdjacentOption,
+    onAdjacentSeatsChange,
+    onSelectedAdjacentOption,
+  ]);
 
   console.log("listAdjacentOptions", listAdjacentOptions);
 
   const handleTicketCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value);
     onTicketCountChange?.(value);
+    onReset?.(); // Reset khi số lượng vé thay đổi
   };
 
   const handleAdjacentSeatsChange = (count: number) => {
