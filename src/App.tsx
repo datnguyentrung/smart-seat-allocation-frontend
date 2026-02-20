@@ -34,9 +34,7 @@ export default function App() {
   const [selectedAdjacentOption, setSelectedAdjacentOption] = useState<
     number[]
   >([]);
-  const [listAdjacentOptions, setListAdjacentOptions] = useState<
-    number[]
-  >([]);
+  const [listAdjacentOptions, setListAdjacentOptions] = useState<number[]>([]);
 
   // TicketCount dùng để theo dõi số lượng vé được chọn
   const [ticketCount, setTicketCount] = useState(0);
@@ -115,6 +113,11 @@ export default function App() {
   // console.log("Seat matrix:", seatMatrix);
 
   const handleSeatClick = (id: number[]) => {
+    // Kiểm tra xem ghế đang được chọn hay bỏ chọn
+    const isReleasing = seats.some(
+      (seat) => id.includes(seat.seatId) && seat.seatState === "SELECTED",
+    );
+
     setSeats((prev) =>
       prev.map((seat) => {
         if (id.includes(seat.seatId) && seat.seatState !== "BOOKED") {
@@ -126,10 +129,24 @@ export default function App() {
         return seat;
       }),
     );
-    setSelectedAdjacentOption([
-      ...selectedAdjacentOption,
-      ...(id.length > 0 ? [id.length] : []),
-    ]); // Cập nhật selectedAdjacentOption dựa trên số lượng ghế được chọn
+
+    if (isReleasing) {
+      // Trường hợp release ghế: xóa số lượng ghế khỏi selectedAdjacentOption
+      setSelectedAdjacentOption((prev) => {
+        const newOptions = [...prev];
+        const indexToRemove = newOptions.indexOf(id.length);
+        if (indexToRemove > -1) {
+          newOptions.splice(indexToRemove, 1);
+        }
+        return newOptions;
+      });
+    } else {
+      // Trường hợp chọn ghế: thêm số lượng ghế vào selectedAdjacentOption
+      setSelectedAdjacentOption([
+        ...selectedAdjacentOption,
+        ...(id.length > 0 ? [id.length] : []),
+      ]);
+    }
   };
 
   const handleNotify = () => {

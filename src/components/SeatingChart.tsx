@@ -16,6 +16,10 @@ interface SeatingChartProps {
   listAdjacentOptions: number[];
 }
 
+interface ListSeatSelected {
+  seatIds: SeatResponse[];
+}
+
 export function SeatingChart({
   showtimeDetails,
   seats,
@@ -28,6 +32,9 @@ export function SeatingChart({
 }: SeatingChartProps) {
   const [suggestedSeats, setSuggestedSeats] = React.useState<
     { x: number; y: number }[]
+  >([]);
+  const [listSeatSelected, setListSeatSelected] = React.useState<
+    ListSeatSelected[]
   >([]);
 
   const handleMouseEnter = (hoveredSeatX: number, hoveredSeatY: number) => {
@@ -62,8 +69,45 @@ export function SeatingChart({
 
       console.log("Seat IDs to select based on suggestions:", seatIdsToSelect);
       handleSeatClick(seatIdsToSelect);
+      setListSeatSelected((prev) => [
+        ...prev,
+        { seatIds: seats.filter((s) => seatIdsToSelect.includes(s.seatId)) },
+      ]);
     }
   };
+
+  const handleReleaseSeats = (seatId: number) => {
+    // Tìm nhóm ghế chứa seatId cần release
+    const seatGroupToRelease = listSeatSelected.find((listSeat) =>
+      listSeat.seatIds.some((s) => s.seatId === seatId),
+    );
+
+    // Nếu tìm thấy nhóm ghế, gọi handleSeatClick để cập nhật state
+    if (seatGroupToRelease) {
+      const seatIdsToRelease = seatGroupToRelease.seatIds.map((s) => s.seatId);
+      handleSeatClick(seatIdsToRelease);
+    }
+
+    // Xóa nhóm ghế khỏi listSeatSelected
+    setListSeatSelected((prev) => {
+      return prev.filter((listSeat) => {
+        return !listSeat.seatIds.some((s) => s.seatId === seatId);
+      });
+    });
+  };
+
+  const validateChooseSeat = (seatId: number) => {
+    const isSelected = listSeatSelected.some((listSeat) =>
+      listSeat.seatIds.some((s) => s.seatId === seatId),
+    );
+    if (!isSelected && listAdjacentOptions.length > 0) {
+      handChooseSeatSuggested();
+    } else {
+      handleReleaseSeats(seatId);
+    }
+  };
+
+  console.log("List of selected seats:", listSeatSelected);
 
   return (
     <div className={styles["seats-section"]}>
@@ -110,9 +154,7 @@ export function SeatingChart({
                   onClick={
                     ticketCount < 1
                       ? handleNotify
-                      : listAdjacentOptions.length > 0
-                        ? handChooseSeatSuggested
-                        : undefined
+                      : () => validateChooseSeat(seat.seatId)
                   }
                   suggested={suggestedSeats.some(
                     (s) => s.x === seat.gridCol - 1 && s.y === seat.gridRow - 1,
