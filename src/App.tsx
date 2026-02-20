@@ -39,7 +39,8 @@ export default function App() {
   // TicketCount dùng để theo dõi số lượng vé được chọn
   const [ticketCount, setTicketCount] = useState(0);
 
-  // AdjacentSeats dùng để theo dõi số lượng ghế liền nhau được chọn
+  // AdjacentSeats dùng để theo dõi số lượng GHẾN liền nhau được chọn
+  // (CHÚ Ý: COUPLE = 1 ghế nhưng 2 vé)
   const [adjacentSeats, setAdjacentSeats] = useState(0);
 
   const handleReset = () => {
@@ -120,11 +121,32 @@ export default function App() {
 
       // 0 = ghế đã đặt hoặc không tồn tại (BOOKED)
       // 1 = ghế có thể đặt (AVAILABLE, SELECTED, hoặc chưa có state)
+      // 2 = ghế COUPLE (chiếm 2 vị trí, tính là 2 vé)
       // KHÔNG tính UNAVAILABLE vào đây vì nó chỉ là UI state
       if (!matrix[rowIndex]) {
         matrix[rowIndex] = [];
       }
-      matrix[rowIndex][colIndex] = seat.seatState === "BOOKED" ? 0 : 1;
+
+      if (seat.seatType === "COUPLE") {
+        // Ghế COUPLE: đánh dấu giá trị 2 để thuật toán biết đây là ghế đôi
+        // Chỉ đánh dấu ở vị trí đầu tiên (colIndex), vị trí thứ 2 sẽ bị skip
+        if (seat.seatState === "BOOKED") {
+          matrix[rowIndex][colIndex] = 0;
+          // Đánh dấu cả ô thứ 2 của couple seat
+          if (colIndex + 1 < matrix[rowIndex].length) {
+            matrix[rowIndex][colIndex + 1] = 0;
+          }
+        } else {
+          matrix[rowIndex][colIndex] = 2; // 2 = COUPLE seat available
+          // Ô thứ 2 cũng cần đánh dấu (có thể dùng -1 để biết đây là phần 2 của COUPLE)
+          if (colIndex + 1 < matrix[rowIndex].length) {
+            matrix[rowIndex][colIndex + 1] = -1; // -1 = phần thứ 2 của COUPLE, skip
+          }
+        }
+      } else {
+        // Ghế thường: 0 = BOOKED, 1 = AVAILABLE
+        matrix[rowIndex][colIndex] = seat.seatState === "BOOKED" ? 0 : 1;
+      }
     });
 
     return matrix;
@@ -147,6 +169,14 @@ export default function App() {
         return seat;
       }
 
+      // COUPLE seat đặc biệt: cần ít nhất 2 vé để đặt (vì COUPLE = 2 vé)
+      if (seat.seatType === "COUPLE" && ticketCount !== 0 && ticketCount < 2) {
+        return {
+          ...seat,
+          seatState: "UNAVAILABLE" as SeatState,
+        };
+      }
+
       try {
         // Kiểm tra xem ghế này có thể tạo ra suggestedSeats hợp lệ không
         const seatX = seat.gridCol - 1;
@@ -154,16 +184,41 @@ export default function App() {
 
         const optimalSeats = findOptimalSeats(
           seatMatrix,
-          adjacentSeats,
+          adjacentSeats, // adjacentSeats giờ là số VÉ (COUPLE = 2 vé)
           seatX,
           seatY,
         );
 
-        // Nếu không tìm được dãy ghế hợp lệ hoặc dãy ghế tìm được không đủ số lượng
+        // Tính tổng capacity (số vé) từ optimalSeats
+        let totalCapacity = 0;
+        optimalSeats.forEach((pos) => {
+          const targetSeat = seats.find(
+            (s) => s.gridCol - 1 === pos.x && s.gridRow - 1 === pos.y
+          );
+          if (targetSeat) {
+            totalCapacity += targetSeat.seatType === "COUPLE" ? 2 : 1;
+          }
+        });
+
+        // Debug log
+        if (seat.seatType === "COUPLE" && adjacentSeats > 0) {
+          console.log(`COUPLE Seat ${seat.rowLabel}${seat.seatNumber}:`, {
+            seatX,
+            seatY,
+            matrixValue: seatMatrix[seatY]?.[seatX],
+            adjacentSeats,
+            ticketCount,
+            optimalSeats,
+            totalCapacity,
+            willBeAvailable: totalCapacity >= adjacentSeats && ticketCount >= 2,
+          });
+        }
+
+        // Nếu không tìm được dãy ghế hợp lệ hoặc không đủ capacity
         // thì mark ghế này là UNAVAILABLE
         if (
           ticketCount !== 0 &&
-          (optimalSeats.length === 0 || optimalSeats.length < adjacentSeats)
+          (optimalSeats.length === 0 || totalCapacity < adjacentSeats)
         ) {
           return {
             ...seat,
@@ -197,6 +252,12 @@ export default function App() {
       (seat) => id.includes(seat.seatId) && seat.seatState === "SELECTED",
     );
 
+    // Tính tổng số vé (COUPLE = 2 vé, STANDARD/VIP = 1 vé)
+    const selectedSeatsInfo = seats.filter((seat) => id.includes(seat.seatId));
+    const totalTickets = selectedSeatsInfo.reduce((sum, seat) => {
+      return sum + (seat.seatType === "COUPLE" ? 2 : 1);
+    }, 0);
+
     setSeats((prev) =>
       prev.map((seat) => {
         if (
@@ -214,20 +275,20 @@ export default function App() {
     );
 
     if (isReleasing) {
-      // Trường hợp release ghế: xóa số lượng ghế khỏi selectedAdjacentOption
+      // Trường hợp release ghế: xóa số lượng vé khỏi selectedAdjacentOption
       setSelectedAdjacentOption((prev) => {
         const newOptions = [...prev];
-        const indexToRemove = newOptions.indexOf(id.length);
+        const indexToRemove = newOptions.indexOf(totalTickets);
         if (indexToRemove > -1) {
           newOptions.splice(indexToRemove, 1);
         }
         return newOptions;
       });
     } else {
-      // Trường hợp chọn ghế: thêm số lượng ghế vào selectedAdjacentOption
+      // Trường hợp chọn ghế: thêm số lượng vé vào selectedAdjacentOption
       setSelectedAdjacentOption([
         ...selectedAdjacentOption,
-        ...(id.length > 0 ? [id.length] : []),
+        ...(totalTickets > 0 ? [totalTickets] : []),
       ]);
     }
   };

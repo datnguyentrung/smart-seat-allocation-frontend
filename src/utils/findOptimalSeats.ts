@@ -2,8 +2,12 @@ type SeatPosition = { x: number; y: number };
 
 /**
  * Tìm dãy ghế tối ưu
- * @param matrix Ma trận rạp phim (0: lối đi, 1: ghế trống, 2: đã đặt - ở đây ta chỉ quan tâm 0 và 1)
- * @param n Số lượng ghế cần đặt
+ * @param matrix Ma trận rạp phim
+ *   - 0: lối đi hoặc ghế đã đặt (không available)
+ *   - 1: ghế thường available (1 vé)
+ *   - 2: ghế COUPLE available (2 vé)
+ *   - -1: phần thứ 2 của ghế COUPLE (skip khi đếm)
+ * @param n Số lượng VÉ cần đặt
  * @param targetX Vị trí cột người dùng chọn
  * @param targetY Vị trí hàng người dùng chọn
  */
@@ -14,77 +18,117 @@ export function findOptimalSeats(
   targetY: number,
 ): SeatPosition[] {
   const row = matrix[targetY];
+  if (!row) return [];
+  
   const maxCol = row.length;
 
+  // Helper: Tính số vé từ một vị trí
+  const getCapacity = (val: number): number => {
+    if (val === 1) return 1; // Ghế thường = 1 vé
+    if (val === 2) return 2; // Ghế COUPLE = 2 vé
+    return 0; // 0 hoặc -1
+  };
+
+  // Helper: Kiểm tra có phải ghế available không
+  const isAvailable = (val: number): boolean => val === 1 || val === 2 || val === -1;
+
   // 1. Xác định "Cụm ghế liên tiếp" (Block) mà người dùng đang chọn
-  // (Ví dụ hàng: 0 1 1 1 1 0, người dùng chọn x=2 -> Block là index [1, 4])
   let blockStart = targetX;
   let blockEnd = targetX;
 
   // Mở rộng sang trái
-  while (blockStart > 0 && row[blockStart - 1] === 1) {
+  while (blockStart > 0 && isAvailable(row[blockStart - 1])) {
     blockStart--;
   }
   // Mở rộng sang phải
-  while (blockEnd < maxCol - 1 && row[blockEnd + 1] === 1) {
+  while (blockEnd < maxCol - 1 && isAvailable(row[blockEnd + 1])) {
     blockEnd++;
   }
 
-  const blockSize = blockEnd - blockStart + 1;
-
-  // Nếu cụm ghế không đủ chỗ cho n người -> Trả về rỗng hoặc xử lý lỗi
-  if (blockSize < n) return [];
-
-  // 2. Tạo danh sách các phương án khả thi (Candidates)
-  // Mỗi candidate là một cặp [startIndex, endIndex]
-  const candidates: { start: number; end: number }[] = [];
-
-  for (let i = blockStart; i <= blockEnd - n + 1; i++) {
-    candidates.push({ start: i, end: i + n - 1 });
+  // Tính tổng capacity (số vé) của block
+  let totalCapacity = 0;
+  for (let i = blockStart; i <= blockEnd; i++) {
+    totalCapacity += getCapacity(row[i]);
   }
 
-  // 3. Hàm kiểm tra "Luật 1 ghế trống"
-  // Trả về true nếu dãy ghế KHÔNG tạo ra ghế trống đơn lẻ
-  const isGapValid = (start: number, end: number): boolean => {
-    const leftGap = start - blockStart; // Số ghế thừa bên trái
-    const rightGap = blockEnd - end; // Số ghế thừa bên phải
-    return leftGap !== 1 && rightGap !== 1;
+  // Nếu block không đủ capacity -> Trả về rỗng
+  if (totalCapacity < n) return [];
+
+  // 2. Tạo danh sách các phương án khả thi (Candidates)
+  const candidates: { start: number; end: number; capacity: number }[] = [];
+
+  // Duyệt tất cả các window có thể trong block
+  for (let start = blockStart; start <= blockEnd; start++) {
+    // Skip vị trí -1 khi làm điểm bắt đầu
+    if (row[start] === -1) continue;
+    
+    let capacity = 0;
+    for (let end = start; end <= blockEnd; end++) {
+      capacity += getCapacity(row[end]);
+      
+      // Nếu capacity >= n, đây là một candidate hợp lệ
+      if (capacity >= n) {
+        candidates.push({ start, end, capacity });
+      }
+    }
+  }
+
+  if (candidates.length === 0) return [];
+
+  // 3. Helper: Tính capacity của một đoạn
+  const getSegmentCapacity = (start: number, end: number): number => {
+    let cap = 0;
+    for (let i = start; i <= end; i++) {
+      cap += getCapacity(row[i]);
+    }
+    return cap;
   };
 
-  // 4. Sắp xếp Candidates theo thứ tự ưu tiên
+  // 4. Helper: Kiểm tra "Luật 1 ghế trống"
+  const isGapValid = (start: number, end: number): boolean => {
+    const leftCapacity = getSegmentCapacity(blockStart, start - 1);
+    const rightCapacity = getSegmentCapacity(end + 1, blockEnd);
+    return leftCapacity !== 1 && rightCapacity !== 1;
+  };
+
+  // 5. Sắp xếp Candidates theo thứ tự ưu tiên
   candidates.sort((a, b) => {
-    // Tiêu chí 1: Gap Rule (Ưu tiên phương án KHÔNG phạm luật)
+    // Tiêu chí 1: Ưu tiên capacity chính xác bằng n (không dư thừa)
+    const aPerfectFit = a.capacity === n;
+    const bPerfectFit = b.capacity === n;
+    if (aPerfectFit !== bPerfectFit) return aPerfectFit ? -1 : 1;
+
+    // Tiêu chí 2: Gap Rule (Ưu tiên phương án KHÔNG phạm luật)
     const aValid = isGapValid(a.start, a.end);
     const bValid = isGapValid(b.start, b.end);
-    if (aValid !== bValid) return aValid ? -1 : 1; // True xếp trước
+    if (aValid !== bValid) return aValid ? -1 : 1;
 
-    // Tiêu chí 2: Inclusion (Ưu tiên phương án CÓ CHỨA targetX)
+    // Tiêu chí 3: Inclusion (Ưu tiên phương án CÓ CHỨA targetX)
     const aHasTarget = targetX >= a.start && targetX <= a.end;
     const bHasTarget = targetX >= b.start && targetX <= b.end;
-    if (aHasTarget !== bHasTarget) return aHasTarget ? -1 : 1; // True xếp trước
+    if (aHasTarget !== bHasTarget) return aHasTarget ? -1 : 1;
 
-    // Tiêu chí 3: Distance (Ưu tiên phương án GẦN targetX nhất)
-    // Tính trung tâm của dãy ghế
+    // Tiêu chí 4: Distance (Ưu tiên phương án GẦN targetX nhất)
     const aCenter = (a.start + a.end) / 2;
     const bCenter = (b.start + b.end) / 2;
     const aDist = Math.abs(aCenter - targetX);
     const bDist = Math.abs(bCenter - targetX);
+    if (aDist !== bDist) return aDist - bDist;
 
-    return aDist - bDist; // Khoảng cách nhỏ hơn xếp trước
+    // Tiêu chí 5: Ưu tiên đoạn ngắn hơn (ít dư thừa hơn)
+    return a.capacity - b.capacity;
   });
 
-  // 5. Chọn phương án tốt nhất (đầu mảng sau khi sort)
+  // 6. Chọn phương án tốt nhất
   const bestOption = candidates[0];
+  if (!bestOption) return [];
 
-  // Kiểm tra nếu không có phương án nào (candidates rỗng)
-  if (!bestOption) {
-    return [];
-  }
-
-  // 6. Format kết quả trả về
+  // 7. Format kết quả trả về (chỉ lấy vị trí ghế thật, bỏ qua -1)
   const result: SeatPosition[] = [];
   for (let i = bestOption.start; i <= bestOption.end; i++) {
-    result.push({ x: i, y: targetY });
+    if (row[i] !== -1) { // Bỏ qua phần thứ 2 của COUPLE
+      result.push({ x: i, y: targetY });
+    }
   }
 
   return result;
