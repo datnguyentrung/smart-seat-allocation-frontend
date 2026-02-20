@@ -62,11 +62,11 @@ export default function App() {
     // Chỉ chạy khi showtimeId thay đổi
     if (!showtimeId) return;
 
-    console.log("Fetching showtime data for ID:", showtimeId);
+    // console.log("Fetching showtime data for ID:", showtimeId);
 
     ShowtimeAPI.getShowtimeWithSeats(showtimeId)
       .then((data: ShowTimeWithSeatsResponse) => {
-        console.log("Showtime data received:", data);
+        // console.log("Showtime data received:", data);
         if (data) {
           setShowtimeDetails(data); // Cập nhật state (để render UI)
 
@@ -80,7 +80,7 @@ export default function App() {
       })
       .then(([seatData, currentShowtimeData]) => {
         // Nhận seatData và currentShowtimeData (chính là biến data ở trên)
-        console.log("Seat data received:", seatData);
+        // console.log("Seat data received:", seatData);
 
         if (seatData) {
           seatData.forEach((seat) => {
@@ -95,7 +95,7 @@ export default function App() {
 
           setSeats(seatData); // Cập nhật danh sách ghế vào state để render UI
           setIsLoading(false); // Data đã load xong
-          console.log("Data loaded successfully!");
+          // console.log("Data loaded successfully!");
         }
       })
       .catch((error) => {
@@ -143,6 +143,8 @@ export default function App() {
             matrix[rowIndex][colIndex + 1] = -1; // -1 = phần thứ 2 của COUPLE, skip
           }
         }
+      } else if (seat.seatState === "SELECTED") {
+        matrix[rowIndex][colIndex] = 0; // Mark as unavailable in matrix
       } else {
         // Ghế thường: 0 = BOOKED, 1 = AVAILABLE
         matrix[rowIndex][colIndex] = seat.seatState === "BOOKED" ? 0 : 1;

@@ -136,43 +136,43 @@ export function findOptimalSeats(
   return result;
 }
 
-// --- TEST CASES ---
+// // --- TEST CASES ---
 
-const matrix1 = [
-  [0, 0, 0, 0, 0, 0],
-  [0, 1, 1, 1, 1, 0], // Row 1
-];
+// const matrix1 = [
+//   [0, 0, 0, 0, 0, 0],
+//   [0, 1, 1, 1, 1, 0], // Row 1
+// ];
 
-console.log("--- TEST CASE 1 (Hàng có 4 ghế) ---");
-// n=2, x=2 -> Output kỳ vọng: x=1, x=2
-console.log("n=2, x=2:", findOptimalSeats(matrix1, 2, 2, 1));
+// console.log("--- TEST CASE 1 (Hàng có 4 ghế) ---");
+// // n=2, x=2 -> Output kỳ vọng: x=1, x=2
+// console.log("n=2, x=2:", findOptimalSeats(matrix1, 2, 2, 1));
 
-// n=3, x=2 (Bất khả kháng) -> Output kỳ vọng: x=1, x=2, x=3
-console.log("n=3, x=2:", findOptimalSeats(matrix1, 3, 2, 1));
+// // n=3, x=2 (Bất khả kháng) -> Output kỳ vọng: x=1, x=2, x=3
+// console.log("n=3, x=2:", findOptimalSeats(matrix1, 3, 2, 1));
 
-// n=3, x=3 -> Output kỳ vọng: x=2, x=3, x=4
-console.log("n=3, x=3:", findOptimalSeats(matrix1, 3, 3, 1));
+// // n=3, x=3 -> Output kỳ vọng: x=2, x=3, x=4
+// console.log("n=3, x=3:", findOptimalSeats(matrix1, 3, 3, 1));
 
-const matrix2 = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0], // Row 1: Cụm 2 từ index 6 đến 11
-];
+// const matrix2 = [
+//   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0], // Row 1: Cụm 2 từ index 6 đến 11
+// ];
 
-console.log("\n--- TEST CASE 2 (Hàng phức tạp) ---");
-// n=3, x=7 -> Output: 6, 7, 8
-console.log(
-  "n=3, x=7:",
-  findOptimalSeats(matrix2, 3, 7, 1).map((s) => s.x),
-);
+// console.log("\n--- TEST CASE 2 (Hàng phức tạp) ---");
+// // n=3, x=7 -> Output: 6, 7, 8
+// console.log(
+//   "n=3, x=7:",
+//   findOptimalSeats(matrix2, 3, 7, 1).map((s) => s.x),
+// );
 
-// n=3, x=8 -> Output: 6, 7, 8 (Vì 7,8,9 để lại lỗ trái 1; 8,9,10 để lại lỗ phải 1)
-console.log(
-  "n=3, x=8:",
-  findOptimalSeats(matrix2, 3, 8, 1).map((s) => s.x),
-);
+// // n=3, x=8 -> Output: 6, 7, 8 (Vì 7,8,9 để lại lỗ trái 1; 8,9,10 để lại lỗ phải 1)
+// console.log(
+//   "n=3, x=8:",
+//   findOptimalSeats(matrix2, 3, 8, 1).map((s) => s.x),
+// );
 
-// n=3, x=9 -> Output: 9, 10, 11 (Để lại cụm 3 ghế bên trái -> Đẹp)
-console.log(
-  "n=3, x=9:",
-  findOptimalSeats(matrix2, 3, 9, 1).map((s) => s.x),
-);
+// // n=3, x=9 -> Output: 9, 10, 11 (Để lại cụm 3 ghế bên trái -> Đẹp)
+// console.log(
+//   "n=3, x=9:",
+//   findOptimalSeats(matrix2, 3, 9, 1).map((s) => s.x),
+// );

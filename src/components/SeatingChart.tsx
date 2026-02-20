@@ -71,7 +71,7 @@ export function SeatingChart({
         })
         .filter((id): id is number => id !== null); // Lọc ra các id hợp lệ
 
-      console.log("Seat IDs to select based on suggestions:", seatIdsToSelect);
+      // console.log("Seat IDs to select based on suggestions:", seatIdsToSelect);
       handleSeatClick(seatIdsToSelect);
       setListSeatSelected((prev) => [
         ...prev,
@@ -111,7 +111,7 @@ export function SeatingChart({
     }
   };
 
-  console.log("List of selected seats:", listSeatSelected);
+  // console.log("List of selected seats:", listSeatSelected);
 
   return (
     <div className={styles["seats-section"]}>

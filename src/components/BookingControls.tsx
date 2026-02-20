@@ -65,7 +65,7 @@ export const BookingControls: React.FC<BookingControlsProps> = ({
     onSelectedAdjacentOption,
   ]);
 
-  console.log("listAdjacentOptions", listAdjacentOptions);
+  // console.log("listAdjacentOptions", listAdjacentOptions);
 
   const handleTicketCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value);

@@ -53,13 +53,13 @@ export function findAndFlattenSuperSets(
   return [...resultSet];
 }
 
-// --- TEST CASE ---
-const dataInput = [
-  [4, 4],
-  [2, 2, 4],
-  [2, 3, 3],
-];
+// // --- TEST CASE ---
+// const dataInput = [
+//   [4, 4],
+//   [2, 2, 4],
+//   [2, 3, 3],
+// ];
 
-console.log(findAndFlattenSuperSets(dataInput, [2]));
-// Output sẽ là: [2, 4, 3]
-// (Tức là [2, 4] từ mảng 1 và [3, 3] từ mảng 2 -> Gộp lại lấy unique)
+// console.log(findAndFlattenSuperSets(dataInput, [2]));
+// // Output sẽ là: [2, 4, 3]
+// // (Tức là [2, 4] từ mảng 1 và [3, 3] từ mảng 2 -> Gộp lại lấy unique)
