@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import React, { useState } from "react";
+import { formatDateDMY, formatTimeHM } from "../utils/format";
 import styles from "./BookingSummary.module.scss";
 
 interface BookingSummaryProps {
@@ -121,11 +122,11 @@ export const BookingSummary: React.FC<BookingSummaryProps> = ({
           <div className={styles["movie-details"]}>
             <div className={styles["detail-item"]}>
               <Calendar />
-              <span>Feb 24, 2026</span>
+              <span>{formatDateDMY(new Date())}</span>
             </div>
             <div className={styles["detail-item"]}>
               <Clock />
-              <span>19:30</span>
+              <span>Lượt chiếu: {formatTimeHM(new Date())}</span>
             </div>
           </div>
 

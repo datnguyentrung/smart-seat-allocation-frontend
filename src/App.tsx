@@ -9,6 +9,7 @@ import type {
 import { findOptimalSeats } from "@/utils/findOptimalSeats";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import styles from "./App.module.scss";
 import { BookingControls } from "./components/BookingControls";
 import { BookingSummary } from "./components/BookingSummary";
@@ -17,6 +18,7 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { SeatingChart } from "./components/SeatingChart";
+import { Toaster } from "./components/ui/sonner";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
@@ -31,11 +33,18 @@ export default function App() {
   const [showtimeDetails, setShowtimeDetails] =
     useState<ShowTimeWithSeatsResponse>(null!);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
+
+  // State để quản lý hiển thị BookingSummary
   const [isBookingSummaryOpen, setIsBookingSummaryOpen] = useState(false);
+
+  // State để lưu lựa chọn option ghế liền kề (ví dụ: [2, 3] nghĩa là có thể chọn option 2 ghế liền kề hoặc 3 ghế liền kề)
   const [selectedAdjacentOption, setSelectedAdjacentOption] = useState<
     number[]
   >([]);
+
+  // listAdjacentOptions là các option ghế liền kề khả dụng dựa trên ticketCount, được tính toán trong BookingControls và truyền lên App để lưu trữ
   const [listAdjacentOptions, setListAdjacentOptions] = useState<number[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
 
   // TicketCount dùng để theo dõi số lượng vé được chọn
@@ -377,7 +386,10 @@ export default function App() {
     // Logic xác nhận đặt vé - có thể gọi API ở đây
     console.log("Booking confirmed!");
     setIsBookingSummaryOpen(false);
+    toast.success("Booking confirmed! Thank you for your purchase.");
     // Reset hoặc chuyển sang bước tiếp theo
+    handleReset();
+    setTicketCount(0);
   };
 
   return (
@@ -444,6 +456,7 @@ export default function App() {
       </main>
 
       <Footer
+        active={ticketCount > 0 && ticketCount === selectedLabels.length}
         selectedSeats={selectedLabels}
         totalPrice={totalPrice}
         onContinue={validateOrphans}
@@ -470,6 +483,8 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <Toaster />
     </motion.div>
   );
 }

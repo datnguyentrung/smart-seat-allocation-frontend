@@ -3,18 +3,18 @@ import React from "react";
 import styles from "./Footer.module.scss";
 
 interface FooterProps {
+  active: boolean;
   selectedSeats: string[];
   totalPrice: number;
   onContinue: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
+  active,
   selectedSeats,
   totalPrice,
   onContinue,
 }) => {
-  const isActive = selectedSeats.length > 0;
-
   return (
     <div className={styles.footer}>
       <div className={styles["info-section"]}>
@@ -45,9 +45,9 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       <motion.button
-        whileHover={{ scale: isActive ? 1.02 : 1 }}
-        whileTap={{ scale: isActive ? 0.98 : 1 }}
-        disabled={!isActive}
+        whileHover={{ scale: active ? 1.02 : 1 }}
+        whileTap={{ scale: active ? 0.98 : 1 }}
+        disabled={!active}
         onClick={onContinue}
         className={styles["continue-button"]}
       >

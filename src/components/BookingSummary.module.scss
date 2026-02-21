@@ -127,7 +127,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: $spacing-md;
     margin-bottom: $spacing-lg;
-    font-size: $font-sm;
+    font-size: $font-base;
 
     .detail-item {
       display: flex;
