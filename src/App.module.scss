@@ -71,3 +71,38 @@
     opacity: 0.5;
   }
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background-color: #1a1a1a;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 50rem;
+  max-height: 80vh;
+  overflow-y: auto; // Giữ lại tính năng cuộn
+  margin-top: -5rem;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 10px 10px -5px rgba(0, 0, 0, 0.4);
+
+  // --- Đoạn code để ẩn scrollbar ---
+  scrollbar-width: none; // Cho Firefox
+  -ms-overflow-style: none; // Cho Internet Explorer và Edge cũ
+
+  &::-webkit-scrollbar {
+    display: none; // Cho Chrome, Safari và Edge mới (Chromium)
+  }
+}

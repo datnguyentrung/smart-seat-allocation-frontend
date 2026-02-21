@@ -11,6 +11,7 @@ import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./App.module.scss";
 import { BookingControls } from "./components/BookingControls";
+import { BookingSummary } from "./components/BookingSummary";
 import { ErrorModal } from "./components/ErrorModal";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -30,6 +31,7 @@ export default function App() {
   const [showtimeDetails, setShowtimeDetails] =
     useState<ShowTimeWithSeatsResponse>(null!);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
+  const [isBookingSummaryOpen, setIsBookingSummaryOpen] = useState(false);
   const [selectedAdjacentOption, setSelectedAdjacentOption] = useState<
     number[]
   >([]);
@@ -328,6 +330,7 @@ export default function App() {
       setIsErrorOpen(true);
     } else {
       console.log("Proceeding with:", selectedLabels);
+      handleBookingContinue();
     }
   };
 
@@ -361,6 +364,21 @@ export default function App() {
       </div>
     );
   }
+
+  const handleBookingContinue = () => {
+    setIsBookingSummaryOpen(true);
+  };
+
+  const handleBookingSummaryBack = () => {
+    setIsBookingSummaryOpen(false);
+  };
+
+  const handleBookingSummaryConfirm = () => {
+    // Logic xác nhận đặt vé - có thể gọi API ở đây
+    console.log("Booking confirmed!");
+    setIsBookingSummaryOpen(false);
+    // Reset hoặc chuyển sang bước tiếp theo
+  };
 
   return (
     <motion.div
@@ -437,6 +455,21 @@ export default function App() {
         title="Booking Restriction"
         message="Leaving a single empty seat between selected seats is not allowed. Please select contiguous seats to optimize space."
       />
+
+      {/* BookingSummary Modal */}
+      {isBookingSummaryOpen && (
+        <div className={styles["modal-overlay"]}>
+          <div className={styles["modal-content"]}>
+            <BookingSummary
+              movieTitle="Avatars: The Way of Water"
+              selectedSeats={selectedLabels}
+              seatPrice={totalPrice}
+              onBack={handleBookingSummaryBack}
+              onConfirm={handleBookingSummaryConfirm}
+            />
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
