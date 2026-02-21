@@ -39,8 +39,8 @@ export default function App() {
   // TicketCount dùng để theo dõi số lượng vé được chọn
   const [ticketCount, setTicketCount] = useState(0);
 
-  // AdjacentSeats dùng để theo dõi số lượng GHẾN liền nhau được chọn
-  // (CHÚ Ý: COUPLE = 1 ghế nhưng 2 vé)
+  // AdjacentSeats = tổng số đơn vị ghế cần chọn
+  // (CHÚ Ý: COUPLE = 2 đơn vị, STANDARD = 1 đơn vị)
   const [adjacentSeats, setAdjacentSeats] = useState(0);
 
   const handleReset = () => {
@@ -186,19 +186,19 @@ export default function App() {
 
         const optimalSeats = findOptimalSeats(
           seatMatrix,
-          adjacentSeats, // adjacentSeats giờ là số VÉ (COUPLE = 2 vé)
+          adjacentSeats, // adjacentSeats = số đơn vị (COUPLE=2, STANDARD=1)
           seatX,
           seatY,
         );
 
-        // Tính tổng capacity (số vé) từ optimalSeats
-        let totalCapacity = 0;
+        // Tính tổng số đơn vị từ optimalSeats
+        let totalUnits = 0;
         optimalSeats.forEach((pos) => {
           const targetSeat = seats.find(
             (s) => s.gridCol - 1 === pos.x && s.gridRow - 1 === pos.y,
           );
           if (targetSeat) {
-            totalCapacity += targetSeat.seatType === "COUPLE" ? 2 : 1;
+            totalUnits += targetSeat.seatType === "COUPLE" ? 2 : 1;
           }
         });
 
@@ -211,16 +211,15 @@ export default function App() {
             adjacentSeats,
             ticketCount,
             optimalSeats,
-            totalCapacity,
-            willBeAvailable: totalCapacity >= adjacentSeats && ticketCount >= 2,
+            totalUnits,
+            willBeAvailable: totalUnits >= adjacentSeats,
           });
         }
 
-        // Nếu không tìm được dãy ghế hợp lệ hoặc không đủ capacity
-        // thì mark ghế này là UNAVAILABLE
+        // Nếu không tìm được đủ đơn vị thì mark là UNAVAILABLE
         if (
           ticketCount !== 0 &&
-          (optimalSeats.length === 0 || totalCapacity < adjacentSeats)
+          (optimalSeats.length === 0 || totalUnits < adjacentSeats)
         ) {
           return {
             ...seat,
