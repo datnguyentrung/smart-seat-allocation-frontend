@@ -1,4 +1,5 @@
 import { SeatAPI } from "@/apis/catalog/SeatAPI";
+import { BookingAPI } from "@/apis/ticketing/BookingAPI";
 import { ShowtimeAPI } from "@/apis/ticketing/ShowtimeAPI";
 import type {
   SeatResponse,
@@ -213,19 +214,19 @@ export default function App() {
           }
         });
 
-        // Debug log
-        if (seat.seatType === "COUPLE" && adjacentSeats > 0) {
-          console.log(`COUPLE Seat ${seat.rowLabel}${seat.seatNumber}:`, {
-            seatX,
-            seatY,
-            matrixValue: seatMatrix[seatY]?.[seatX],
-            adjacentSeats,
-            ticketCount,
-            optimalSeats,
-            totalUnits,
-            willBeAvailable: totalUnits >= adjacentSeats,
-          });
-        }
+        // // Debug log
+        // if (seat.seatType === "COUPLE" && adjacentSeats > 0) {
+        //   console.log(`COUPLE Seat ${seat.rowLabel}${seat.seatNumber}:`, {
+        //     seatX,
+        //     seatY,
+        //     matrixValue: seatMatrix[seatY]?.[seatX],
+        //     adjacentSeats,
+        //     ticketCount,
+        //     optimalSeats,
+        //     totalUnits,
+        //     willBeAvailable: totalUnits >= adjacentSeats,
+        //   });
+        // }
 
         // Nếu không tìm được đủ đơn vị thì mark là UNAVAILABLE
         if (
@@ -384,12 +385,22 @@ export default function App() {
 
   const handleBookingSummaryConfirm = () => {
     // Logic xác nhận đặt vé - có thể gọi API ở đây
-    console.log("Booking confirmed!");
-    setIsBookingSummaryOpen(false);
-    toast.success("Booking confirmed! Thank you for your purchase.");
-    // Reset hoặc chuyển sang bước tiếp theo
-    handleReset();
-    setTicketCount(0);
+    BookingAPI.createBooking({
+      showtimeId: showtimeDetails.showtimeId,
+      seatIds: selectedSeats.map((s) => s.seatId),
+    })
+      .then((response) => {
+        setIsBookingSummaryOpen(false);
+        console.log("Booking API response:", response);
+        toast.success("Booking confirmed! Thank you for your purchase.");
+        // Reset hoặc chuyển sang bước tiếp theo
+        handleReset();
+        setTicketCount(0);
+      })
+      .catch((error) => {
+        console.error("Booking API error:", error);
+        toast.error("Failed to confirm booking. Please try again.");
+      });
   };
 
   return (

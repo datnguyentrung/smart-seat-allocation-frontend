@@ -3,6 +3,25 @@ export type SeatState = "AVAILABLE" | "BOOKED" | "SELECTED" | "UNAVAILABLE";
 export type AgeRating = "P" | "C13" | "C16" | "C18";
 export type RoomType = "2D" | "3D" | "IMAX";
 export type ShowtimeStatus = "OPENING" | "SOLD_OUT" | "CANCELLED";
+export type TicketStatus = "HOLD" | "PAID" | "USED" | "CANCELLED";
+
+export interface BookSeatsRequest{
+  showtimeId: string;
+  seatIds: number[];
+}
+
+export interface TicketResponse{
+  ticketId: string;
+  bookingId: string;
+  showtimeId: string;
+  seatId: number;
+
+  ticketCode: string;
+  price: number;
+  createdAt: Date | string;
+  status: TicketStatus;
+  checkInTime?: Date | string;
+}
 
 export interface SeatResponse {
   seatId: number;
