@@ -1,7 +1,6 @@
-import { ChevronLeft, Info } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import React from "react";
 import styles from "./Header.module.scss";
-
 interface HeaderProps {
   movieTitle: string;
   showTime: string;
@@ -28,9 +27,6 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
-      <button className={styles["info-button"]}>
-        <Info size={20} />
-      </button>
     </header>
   );
 };

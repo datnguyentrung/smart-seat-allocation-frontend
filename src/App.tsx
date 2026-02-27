@@ -9,6 +9,7 @@ import type {
   TicketResponse,
 } from "@/types/types";
 import { findOptimalSeats } from "@/utils/findOptimalSeats";
+import { RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -22,6 +23,11 @@ import { Legend } from "./components/Legend";
 import { SeatingChart } from "./components/SeatingChart";
 import TicketModal from "./components/TicketModal";
 import { Toaster } from "./components/ui/sonner";
+import {
+  createSeatUpdateHandler,
+  createSeatsUpdateHandler,
+  useShowtimeWebSocket,
+} from "./hooks/useShowtimeWebSocket";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
 
@@ -62,6 +68,29 @@ export default function App() {
   const [currentTicketIndex, setCurrentTicketIndex] = useState(0);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const [isBookingProcessing, setIsBookingProcessing] = useState(false);
+
+  // WebSocket connection for real-time seat updates
+  // Set enabled: false if backend WebSocket is not ready
+  const ENABLE_WEBSOCKET = import.meta.env.VITE_ENABLE_WEBSOCKET !== "false";
+
+  // Memoize handlers để tránh re-create mỗi lần render
+  const handleSeatUpdate = useMemo(() => createSeatUpdateHandler(setSeats), []);
+
+  const handleSeatsUpdate = useMemo(
+    () => createSeatsUpdateHandler(setSeats),
+    [],
+  );
+
+  const {
+    status: wsStatus,
+    isConnected: wsConnected,
+    reconnect: wsReconnect,
+  } = useShowtimeWebSocket({
+    showtimeId,
+    enabled: ENABLE_WEBSOCKET && !isLoading && !!showtimeDetails,
+    onSeatUpdate: handleSeatUpdate,
+    onSeatsUpdate: handleSeatsUpdate,
+  });
 
   const handleReset = () => {
     // Reset trạng thái ghế
@@ -465,6 +494,42 @@ export default function App() {
         showTime="19:30 - 22:30"
         cinemaName="CGV Aeon Ha Dong - Room 01"
       />
+
+      {/* WebSocket Connection Status Indicator - Only show if enabled */}
+      {ENABLE_WEBSOCKET && (
+        <div className={styles["ws-status"]}>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`${styles["ws-indicator"]} ${styles[`ws-${wsStatus}`]}`}
+            title={`WebSocket: ${wsStatus}`}
+          >
+            {wsConnected ? (
+              <>
+                <Wifi size={16} />
+                <span>Live</span>
+              </>
+            ) : wsStatus === "connecting" ? (
+              <>
+                <RefreshCw size={16} className={styles.spinning} />
+                <span>Connecting...</span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={16} />
+                <span>Offline</span>
+                <button
+                  onClick={wsReconnect}
+                  className={styles["reconnect-btn"]}
+                  title="Reconnect"
+                >
+                  ↻
+                </button>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
 
       <main className={styles.main}>
         {/* Flex Container for BookingControls and Screen+Seats */}
