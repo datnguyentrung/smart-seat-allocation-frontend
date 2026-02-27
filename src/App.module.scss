@@ -142,3 +142,92 @@
   margin: 0;
   letter-spacing: -0.025em;
 }
+
+// WebSocket Status Indicator
+.ws-status {
+  position: fixed;
+  top: $spacing-lg;
+  right: $spacing-lg;
+  z-index: $z-dropdown;
+}
+
+.ws-indicator {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background-color: rgba($color-surface, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: $radius-full;
+  border: 1px solid $color-border;
+  font-size: $font-sm;
+  font-weight: 600;
+  @include transition;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+
+  &.ws-connected {
+    border-color: #10b981;
+    color: #10b981;
+
+    svg {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+
+  &.ws-connecting {
+    border-color: #fbbf24;
+    color: #fbbf24;
+  }
+
+  &.ws-disconnected,
+  &.ws-error {
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  .reconnect-btn {
+    @include button-reset;
+    margin-left: $spacing-xs;
+    padding: $spacing-xs;
+    border-radius: $radius-full;
+    @include hover-bg;
+    @include transition;
+    font-size: $font-lg;
+    line-height: 1;
+
+    &:hover {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
