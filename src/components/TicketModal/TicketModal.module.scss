@@ -1,0 +1,304 @@
+@use "../../styles/_variables" as *;
+@use "../../styles/_mixins" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal + 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  padding: $spacing-lg;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  background: linear-gradient(
+    135deg,
+    $color-surface 0%,
+    rgba($color-surface, 0.95) 100%
+  );
+  border-radius: $spacing-lg;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  border: 1px solid $color-border-light;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  position: relative;
+  padding: $spacing-xl $spacing-lg $spacing-lg;
+  border-bottom: 1px solid $color-border;
+  background: linear-gradient(
+    135deg,
+    rgba($color-primary, 0.1) 0%,
+    transparent 100%
+  );
+
+  .headerContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    .successIcon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: $radius-full;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    h2 {
+      font-size: $font-xl;
+      font-weight: 700;
+      margin: 0;
+      text-align: center;
+      letter-spacing: -0.025em;
+    }
+
+    .ticketCounter {
+      font-size: $font-sm;
+      color: $color-text-muted;
+      margin: 0;
+    }
+  }
+
+  .closeButton {
+    position: absolute;
+    top: $spacing-lg;
+    right: $spacing-lg;
+    @include button-reset;
+    padding: $spacing-sm;
+    border-radius: $radius-full;
+    @include hover-bg;
+    @include transition;
+
+    svg {
+      display: block;
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-lg;
+}
+
+.movieInfo {
+  margin-bottom: $spacing-xl;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+
+  h3 {
+    font-size: $font-lg;
+    font-weight: 700;
+    margin: 0 0 $spacing-md;
+    letter-spacing: -0.025em;
+  }
+
+  .infoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  .infoItem {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $color-text-muted;
+    font-size: $font-sm;
+
+    svg {
+      flex-shrink: 0;
+      color: $color-primary;
+    }
+  }
+}
+
+.ticketDetails {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  padding: $spacing-lg;
+  background-color: rgba($color-background, 0.5);
+  border-radius: $spacing-md;
+  border: 1px solid $color-border;
+
+  .detailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-md;
+
+    .label {
+      font-size: $font-sm;
+      color: $color-text-muted;
+      flex-shrink: 0;
+    }
+
+    .value {
+      font-size: $font-base;
+      font-weight: 600;
+      text-align: right;
+      word-break: break-all;
+
+      .seatType {
+        font-size: $font-xs;
+        color: $color-text-muted;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+    }
+
+    .statusBadge {
+      padding: $spacing-xs $spacing-md;
+      border-radius: $radius-full;
+      font-size: $font-xs;
+      font-weight: 600;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: linear-gradient(
+    135deg,
+    rgba($color-background, 0.5) 0%,
+    rgba($color-surface, 0.3) 100%
+  );
+  border-radius: $spacing-md;
+  border: 1px solid $color-border;
+
+  .qrCode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-md;
+    background-color: white;
+    border-radius: $spacing-md;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .qrNote {
+    font-size: $font-sm;
+    color: $color-text-muted;
+    text-align: center;
+    margin: 0;
+  }
+}
+
+.footer {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border-top: 1px solid $color-border;
+  background-color: rgba($color-background, 0.5);
+
+  button {
+    flex: 1;
+    padding: $spacing-md $spacing-lg;
+    border-radius: $spacing-md;
+    font-size: $font-base;
+    font-weight: 600;
+    @include transition;
+    cursor: pointer;
+    border: none;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+  }
+
+  .primaryButton {
+    background: linear-gradient(
+      135deg,
+      $color-primary 0%,
+      $color-primary-hover 100%
+    );
+    color: white;
+    box-shadow: 0 2px 8px rgba($color-primary, 0.3);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($color-primary, 0.4);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  .secondaryButton {
+    background-color: transparent;
+    color: $color-text;
+    border: 1px solid $color-border-medium;
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-surface, 0.5);
+      border-color: $color-border-strong;
+    }
+  }
+
+  .tertiaryButton {
+    background-color: rgba($color-surface, 0.5);
+    color: $color-text-muted;
+    border: 1px solid $color-border;
+    flex: 0.5;
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-surface, 0.8);
+      color: $color-text;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: $breakpoint-sm) {
+  .modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .overlay {
+    padding: 0;
+  }
+
+  .content {
+    padding: $spacing-md;
+  }
+
+  .header {
+    padding: $spacing-lg $spacing-md;
+  }
+
+  .footer {
+    padding: $spacing-md;
+    flex-direction: column;
+  }
+}

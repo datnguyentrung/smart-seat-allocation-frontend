@@ -6,6 +6,7 @@ import type {
   SeatState,
   SeatType,
   ShowTimeWithSeatsResponse,
+  TicketResponse,
 } from "@/types/types";
 import { findOptimalSeats } from "@/utils/findOptimalSeats";
 import { motion } from "motion/react";
@@ -19,6 +20,7 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Legend } from "./components/Legend";
 import { SeatingChart } from "./components/SeatingChart";
+import TicketModal from "./components/TicketModal";
 import { Toaster } from "./components/ui/sonner";
 
 const showtimeId = "e0000000-0000-0000-0000-000000000001";
@@ -54,6 +56,12 @@ export default function App() {
   // AdjacentSeats = tổng số đơn vị ghế cần chọn
   // (CHÚ Ý: COUPLE = 2 đơn vị, STANDARD = 1 đơn vị)
   const [adjacentSeats, setAdjacentSeats] = useState(0);
+
+  // State để quản lý TicketModal
+  const [tickets, setTickets] = useState<TicketResponse[]>([]);
+  const [currentTicketIndex, setCurrentTicketIndex] = useState(0);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [isBookingProcessing, setIsBookingProcessing] = useState(false);
 
   const handleReset = () => {
     // Reset trạng thái ghế
@@ -385,22 +393,65 @@ export default function App() {
 
   const handleBookingSummaryConfirm = () => {
     // Logic xác nhận đặt vé - có thể gọi API ở đây
+    setIsBookingProcessing(true);
+
     BookingAPI.createBooking({
       showtimeId: showtimeDetails.showtimeId,
       seatIds: selectedSeats.map((s) => s.seatId),
     })
       .then((response) => {
-        setIsBookingSummaryOpen(false);
+        if (!response || response.length === 0) {
+          throw new Error("Invalid booking response");
+        }
         console.log("Booking API response:", response);
+
+        // Delay để hiển thị hiệu ứng loading
+        return new Promise<TicketResponse[]>((resolve) => {
+          setTimeout(() => resolve(response), 1500);
+        });
+      })
+      .then((response) => {
+        setIsBookingSummaryOpen(false);
+        setIsBookingProcessing(false);
         toast.success("Booking confirmed! Thank you for your purchase.");
-        // Reset hoặc chuyển sang bước tiếp theo
+
+        // Lưu danh sách tickets và hiển thị modal đầu tiên
+        setTickets(response);
+        setCurrentTicketIndex(0);
+        setIsTicketModalOpen(true);
+
+        // Reset sau khi hiển thị modal
         handleReset();
         setTicketCount(0);
       })
       .catch((error) => {
         console.error("Booking API error:", error);
+        setIsBookingProcessing(false);
         toast.error("Failed to confirm booking. Please try again.");
       });
+  };
+
+  // Handler để đóng TicketModal
+  const handleCloseTicketModal = () => {
+    setIsTicketModalOpen(false);
+    setTickets([]);
+    setCurrentTicketIndex(0);
+  };
+
+  // Handler để xem vé tiếp theo
+  const handleNextTicket = () => {
+    if (currentTicketIndex < tickets.length - 1) {
+      setCurrentTicketIndex((prev) => prev + 1);
+    } else {
+      handleCloseTicketModal();
+    }
+  };
+
+  // Handler để xem vé trước đó
+  const handlePreviousTicket = () => {
+    if (currentTicketIndex > 0) {
+      setCurrentTicketIndex((prev) => prev - 1);
+    }
   };
 
   return (
@@ -493,6 +544,48 @@ export default function App() {
             />
           </div>
         </div>
+      )}
+
+      {/* Loading Spinner khi đang xử lý booking */}
+      {isBookingProcessing && (
+        <div className={styles["modal-overlay"]}>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className={styles["loading-container"]}
+          >
+            <motion.div
+              className={styles.spinner}
+              animate={{ rotate: 360 }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+            <p className={styles["loading-text"]}>Đang xử lý đặt vé...</p>
+          </motion.div>
+        </div>
+      )}
+
+      {/* TicketModal - Hiển thị lần lượt các vé sau khi booking */}
+      {isTicketModalOpen && tickets.length > 0 && (
+        <TicketModal
+          ticket={tickets[currentTicketIndex]}
+          seat={
+            seats.find(
+              (s) => s.seatId === tickets[currentTicketIndex].seatId,
+            ) || null
+          }
+          movieTitle="Avatars: The Way of Water"
+          showtime="19:30 - 22:30"
+          cinemaName="CGV Aeon Ha Dong - Room 01"
+          currentIndex={currentTicketIndex}
+          totalTickets={tickets.length}
+          onClose={handleCloseTicketModal}
+          onNext={handleNextTicket}
+          onPrevious={handlePreviousTicket}
+        />
       )}
 
       <Toaster />
