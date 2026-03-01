@@ -276,6 +276,17 @@ export default function App() {
           };
         }
 
+        if (
+          optimalSeats.length > 0 &&
+          !optimalSeats.some((pos) => pos.x === seatX && pos.y === seatY)
+        ) {
+          // Nếu ghế này không nằm trong optimalSeats, nghĩa là chọn ghế này sẽ không tạo ra option hợp lệ, nên mark là UNAVAILABLE
+          return {
+            ...seat,
+            seatState: "UNAVAILABLE" as SeatState,
+          };
+        }
+
         // Nếu có thể tạo suggestedSeats, giữ là AVAILABLE
         return {
           ...seat,
