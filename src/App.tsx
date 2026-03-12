@@ -251,21 +251,6 @@ export default function App() {
           }
         });
 
-        // // Debug log
-        // if (seat.seatType === "COUPLE" && adjacentSeats > 0) {
-        //   console.log(`COUPLE Seat ${seat.rowLabel}${seat.seatNumber}:`, {
-        //     seatX,
-        //     seatY,
-        //     matrixValue: seatMatrix[seatY]?.[seatX],
-        //     adjacentSeats,
-        //     ticketCount,
-        //     optimalSeats,
-        //     totalUnits,
-        //     willBeAvailable: totalUnits >= adjacentSeats,
-        //   });
-        // }
-
-        // Nếu không tìm được đủ đơn vị thì mark là UNAVAILABLE
         if (
           ticketCount !== 0 &&
           (optimalSeats.length === 0 || totalUnits < adjacentSeats)
