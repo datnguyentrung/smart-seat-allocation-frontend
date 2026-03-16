@@ -29,7 +29,8 @@ import {
   useShowtimeWebSocket,
 } from "./hooks/useShowtimeWebSocket";
 
-const showtimeId = "e0000000-0000-0000-0000-000000000001";
+const showtimeId =
+  import.meta.env.VITE_SHOWTIME_ID || "5759424d-bf2f-4420-bf95-c2fcf680c7e6";
 
 const SEAT_PRICES: Record<SeatType, number> = {
   STANDARD: 80000,
