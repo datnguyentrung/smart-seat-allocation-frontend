@@ -82,7 +82,11 @@ export default function Showtime() {
   const { data, error, isError, isLoading, isFetching, refetch } =
     useShowtimesByDate(selectedDate);
 
-  const movies = useMemo(() => groupByMovie(data ?? []), [data]);
+  console.log("Raw showtime data:", data);
+
+  const movies = useMemo(() => {
+    return groupByMovie(data ?? []);
+  }, [data]);
 
   const errorMessage =
     error instanceof Error ? error.message : "Không thể tải lịch chiếu";

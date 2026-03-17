@@ -5,6 +5,11 @@ import type {
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { ShowtimeAPI } from "./ShowtimeAPI";
 
+function filterEndedShowtimes(items: ShowtimeResponse[]): ShowtimeResponse[] {
+  const now = Date.now();
+  return items.filter((item) => new Date(item.endTime).getTime() >= now);
+}
+
 export const showtimeQueryKeys = {
   all: ["showtimes"] as const,
   withSeats: (showtimeId: string) =>
@@ -53,7 +58,10 @@ export function useShowtimesByDate(
 ) {
   return useQuery({
     queryKey: showtimeQueryKeys.byDate(date ?? ""),
-    queryFn: () => ShowtimeAPI.getShowtimeByFilter(date!),
+    queryFn: async () => {
+      const showtimes = await ShowtimeAPI.getShowtimeByFilter(date!);
+      return filterEndedShowtimes(showtimes);
+    },
     enabled: Boolean(date) && (options?.enabled ?? true),
     ...options,
   });
