@@ -1,0 +1,123 @@
+.carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.arrowButton {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
+
+.dateScroller {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  flex: 1;
+  padding: 0.25rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.dateButton {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 68px;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dateButtonSelected {
+  background: linear-gradient(to bottom, #dc2626, #991b1b);
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow:
+    0 10px 15px -3px rgba(127, 29, 29, 0.5),
+    0 0 18px rgba(225, 29, 72, 0.4);
+}
+
+.dateButtonDefault {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.dateDayLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dateDayLabelSelected {
+  color: #fecdd3;
+}
+
+.dateDayLabelDefault {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dateNumber {
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-top: 0.125rem;
+}
+
+.dateNumberSelected {
+  color: #fff;
+}
+
+.dateMonthLabel {
+  font-size: 10px;
+  margin-top: 0.125rem;
+}
+
+.dateMonthLabelSelected {
+  color: #fecdd3;
+}
+
+.dateMonthLabelDefault {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.todayDot {
+  position: absolute;
+  bottom: 0.375rem;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 9999px;
+  background: #22d3ee;
+}

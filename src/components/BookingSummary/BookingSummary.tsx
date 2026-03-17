@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import React, { useState } from "react";
-import { formatDateDMY, formatTimeHM } from "../utils/format";
+import { formatDateDMY, formatTimeHM } from "@/utils/format";
 import styles from "./BookingSummary.module.scss";
 
 interface BookingSummaryProps {

@@ -1,7 +1,7 @@
+import { type SeatState, type SeatType } from "@/types/types";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
-import { type SeatState, type SeatType } from "../types/types";
 import styles from "./Seat.module.scss";
 
 interface SeatProps {

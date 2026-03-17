@@ -1,8 +1,8 @@
 import type { SeatResponse, ShowTimeWithSeatsResponse } from "@/types/types";
 import { findOptimalSeats } from "@/utils/findOptimalSeats";
 import React from "react";
-import { Screen } from "./Screen";
-import { Seat } from "./Seat";
+import { Screen } from "../Screen/Screen";
+import { Seat } from "../Seat";
 import styles from "./SeatingChart.module.scss";
 
 interface SeatingChartProps {

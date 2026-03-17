@@ -1,0 +1,233 @@
+@use "@/styles/_variables" as *;
+@use "@/styles/_mixins" as *;
+
+.selectSeatApp {
+  min-height: 100vh;
+  background-color: $color-background;
+  font-family: sans-serif;
+  color: $color-text;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 8rem;
+
+  ::selection {
+    background-color: rgba($color-primary, 0.3);
+  }
+}
+
+.selectSeatMain {
+  flex: 1;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+  overflow-x: hidden;
+
+  @include sm {
+    padding: 0 1rem;
+  }
+}
+
+.selectSeatContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+
+  @include lg {
+    flex-direction: row;
+  }
+}
+
+.selectSeatControlsSection {
+  width: 100%;
+  flex-shrink: 0;
+
+  @include lg {
+    width: 24rem;
+  }
+}
+
+.selectSeatLegendWrapper {
+  // Animation handled by Framer Motion
+  width: 100%;
+}
+
+.selectSeatTerms {
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  padding: 0 1rem;
+
+  p {
+    color: $color-text-secondary;
+    font-size: $font-xs;
+    line-height: 1.6;
+    max-width: 24rem;
+    margin: 0 auto;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    opacity: 0.5;
+  }
+}
+
+.selectSeatModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.selectSeatModalContent {
+  background-color: #1a1a1a;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 50rem;
+  max-height: 80vh;
+  overflow-y: auto; // Giữ lại tính năng cuộn
+  margin-top: -5rem;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 10px 10px -5px rgba(0, 0, 0, 0.4);
+
+  // --- Đoạn code để ẩn scrollbar ---
+  scrollbar-width: none; // Cho Firefox
+  -ms-overflow-style: none; // Cho Internet Explorer và Edge cũ
+
+  &::-webkit-scrollbar {
+    display: none; // Cho Chrome, Safari và Edge mới (Chromium)
+  }
+}
+
+// Loading Spinner Styles
+.selectSeatLoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 3rem;
+  background: linear-gradient(
+    135deg,
+    $color-surface 0%,
+    rgba($color-surface, 0.95) 100%
+  );
+  border-radius: 1rem;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}
+
+.selectSeatSpinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba($color-primary, 0.2);
+  border-top-color: $color-primary;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba($color-primary, 0.3);
+}
+
+.selectSeatLoadingText {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $color-text;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+// WebSocket Status Indicator
+.selectSeatWsStatus {
+  position: fixed;
+  top: $spacing-lg;
+  right: $spacing-lg;
+  z-index: $z-dropdown;
+}
+
+.selectSeatWsIndicator {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background-color: rgba($color-surface, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: $radius-full;
+  border: 1px solid $color-border;
+  font-size: $font-sm;
+  font-weight: 600;
+  @include transition;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+}
+
+.selectSeatWsConnected {
+  border-color: #10b981;
+  color: #10b981;
+
+  svg {
+    animation: pulse 2s ease-in-out infinite;
+  }
+}
+
+.selectSeatWsConnecting {
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.selectSeatWsDisconnected,
+.selectSeatWsError {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.selectSeatReconnectBtn {
+  @include button-reset;
+  margin-left: $spacing-xs;
+  padding: $spacing-xs;
+  border-radius: $radius-full;
+  @include hover-bg;
+  @include transition;
+  font-size: $font-lg;
+  line-height: 1;
+
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+
+.selectSeatSpinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
